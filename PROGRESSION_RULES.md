@@ -9,6 +9,7 @@
 
 ## Increase rules (how much to add, by lift type)
 - Target = first-set target (12 reps) + last-set minimum (10 reps) logic above.
+- Increase amounts are defined here:
 - Lower-body compound (squat, deadlift, leg press): +5 lb.
 - Upper-body compound (bench, overhead press, row): +2.5 lb.
 - Accessories/isolation (curls, raises, flyes): +2.5 lb.

@@ -1,3 +1,3 @@
 # Test-1
 
-Test-1 is a minimal placeholder repository that currently contains no source code and is intended as a starting point for future experiments, documentation, or project scaffolding.
+Test-1 is a blank starter repository that currently contains no application code; it exists as a clean slate for future experiments, documentation, and project scaffolding.

@@ -5,7 +5,7 @@
 2. What is the minimum feature set required for a viable first release?
 
 ## Data
-3. What are the authoritative data sources and their update/refresh cadence?
+3. What core in-app or user-generated data must we store for the MVP (e.g., workouts, exercises, progress), and how frequently does it change?
 4. What data retention and deletion policies must the system enforce?
 
 ## Progression logic
@@ -19,3 +19,4 @@
 ## Non-functional
 9. What are the target performance and scalability requirements (latency, throughput, concurrency)?
 10. What security and privacy controls (auth, access, encryption) are mandatory?
+11. How will users access the app (web, native mobile, hybrid), and what constraints does that impose?

@@ -1,0 +1,3 @@
+- Draft a mission statement and core problem this repository intends to solve.
+- Inventory any existing assets or ideas and map them to potential project directions.
+- Define an initial roadmap with target users, success criteria, and a first milestone.

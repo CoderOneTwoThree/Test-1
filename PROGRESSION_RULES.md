@@ -3,18 +3,21 @@
 ## Preconditions (what must be true to advance)
 - Lift logged for the current session.
 - All prescribed work sets completed.
-- No more than 1 rep short of target on any set.
+- First set hits 12 reps and last set hits at least 10 reps (1–2 RIR).
 - No form break logged.
 - At least 1 prior session for the same lift exists.
 
 ## Increase rules (how much to add, by lift type)
+- Target = first-set target (12 reps) + last-set minimum (10 reps) logic above.
 - Lower-body compound (squat, deadlift, leg press): +5 lb.
 - Upper-body compound (bench, overhead press, row): +2.5 lb.
 - Accessories/isolation (curls, raises, flyes): +2.5 lb.
 - If fractional plates are unavailable: round down to nearest available increment.
+- After an increase, reset to 6–8 reps.
 
 ## Hold rules (when to keep weight the same)
 - Any set missed or below target reps.
+- Any set below 6 reps counts as a missed target rep.
 - Form break logged on any set.
 - Less than 2 sessions completed for the lift.
 - Deload in effect.

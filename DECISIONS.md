@@ -6,7 +6,7 @@
 
 ## Data
 3. What core in-app or user-generated data must we store for the MVP (e.g., workouts, exercises, progress), and how frequently does it change?
-4. What data retention and deletion policies must the system enforce?
+4. What user data can be deleted, when, and how?
 
 ## Progression logic
 5. What criteria determine when a user advances to the next stage?

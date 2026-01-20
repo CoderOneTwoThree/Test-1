@@ -91,7 +91,7 @@ Bird Dog | core | abs, back | bodyweight | beginner | dead bug, plank
 Cable Pallof Press | core | abs, obliques | cable | beginner | side plank, dead bug
 Hanging Knee Raise | core | abs, hip flexors | bodyweight | intermediate | captain's chair raise, dead bug
 Cable Crunch | core | abs | cable | beginner | crunch, machine crunch
-Ab Wheel Rollout | core | abs | equipment | intermediate | plank, stability ball rollout
+Ab Wheel Rollout | core | abs | ab wheel | intermediate | plank, stability ball rollout
 Leg Extension | accessory | quadriceps | machine | beginner | leg press, step-up
 Leg Curl | accessory | hamstrings | machine | beginner | RDL, glute bridge
 Standing Calf Raise | accessory | calves | bodyweight | beginner | seated calf raise, machine calf raise

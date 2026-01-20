@@ -1,0 +1,18 @@
+- Goal=general_fitness -> Split=full_body when weekly_frequency<=3; Split=upper_lower when weekly_frequency in [4]; Split=push_pull_legs when weekly_frequency>=5.
+- Goal=muscle_gain -> Split=upper_lower when weekly_frequency in [3,4]; Split=push_pull_legs when weekly_frequency>=5; Split=full_body only when weekly_frequency<=2.
+- Goal=strength -> Split=full_body when weekly_frequency<=3; Split=upper_lower when weekly_frequency in [4,5]; Split=push_pull_legs when weekly_frequency>=6.
+- Goal=weight_loss -> Split=full_body when weekly_frequency<=3; Split=upper_lower when weekly_frequency in [4]; Split=push_pull_legs when weekly_frequency>=5.
+- Experience=beginner -> Volume=low; Exercises=prioritize_compound_movements; Limit=1-2_accessory_per_muscle_group.
+- Experience=intermediate -> Volume=moderate; Exercises=compound_plus_accessory_balance; Include=moderate_variation.
+- Experience=advanced -> Volume=high; Exercises=compound_plus_specialization; Include=advanced_variations_and_intensity_techniques.
+- Equipment=none -> Exercise_pool=bodyweight_only; Exclude=barbell_dumbbell_machine_movements.
+- Equipment=dumbbells_only -> Exercise_pool=bodyweight_plus_dumbbell; Exclude=barbell_machine_movements.
+- Equipment=home_gym -> Exercise_pool=bodyweight_barbell_dumbbell_basic_bench_rack; Exclude=machine_only_movements.
+- Equipment=full_gym -> Exercise_pool=all_available_movements.
+- Weekly_frequency=1 -> Plan_structure=1_full_body_session.
+- Weekly_frequency=2 -> Plan_structure=2_full_body_sessions.
+- Weekly_frequency=3 -> Plan_structure=3_full_body_sessions_or_upper_lower_full_rotation.
+- Weekly_frequency=4 -> Plan_structure=upper_lower_upper_lower.
+- Weekly_frequency=5 -> Plan_structure=push_pull_legs_upper_lower_or_push_pull_legs_push_pull.
+- Weekly_frequency=6 -> Plan_structure=push_pull_legs_repeat.
+- Weekly_frequency>=7 -> Plan_structure=push_pull_legs_repeat_plus_optional_full_body_or_recovery_day.

@@ -30,9 +30,9 @@ Top 10 realistic ways this workout app could give bad advice or mislead users, w
    - **Why it happens:** Generic programming does not account for age, injury history, equipment access, or schedule.
    - **MVP mitigation:** Ask for a minimal constraints profile (injuries, equipment, days/week) and filter recommendations accordingly.
 
-8. **Misleading calorie burn or intensity estimates**
-   - **Why it happens:** Calorie formulas are broad averages and can overestimate for many users.
-   - **MVP mitigation:** Display calorie ranges (low/likely/high) and a note that estimates are approximate.
+8. **Misleading intensity estimates**
+   - **Why it happens:** Effort zones are inferred from limited signals and can misclassify how hard a session actually felt.
+   - **MVP mitigation:** Let users confirm perceived effort after workouts and adjust intensity guidance based on their feedback.
 
 9. **Overemphasis on short-term trends**
    - **Why it happens:** Day-to-day fluctuations in weight or performance can be interpreted as true progress or regression.

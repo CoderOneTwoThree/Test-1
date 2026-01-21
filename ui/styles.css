@@ -1,0 +1,127 @@
+:root {
+  --bg: #ffffff;
+  --text: #000000;
+  --accent: #ff0000;
+  --border-thin: 2px solid #000000;
+  --border-thick: 4px solid #000000;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  transition: none !important;
+  animation: none !important;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "SF Mono", "Courier New", Courier, monospace;
+}
+
+body {
+  min-height: 100vh;
+}
+
+a {
+  color: var(--accent);
+}
+
+a:focus,
+button:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  outline: var(--border-thick);
+  outline-offset: 0;
+}
+
+button,
+input,
+textarea,
+select {
+  border: var(--border-thin);
+  background: var(--bg);
+  color: var(--text);
+  font-family: inherit;
+  padding: 0.75rem 1rem;
+}
+
+button {
+  border: var(--border-thick);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+  background: var(--bg);
+}
+
+.app__header {
+  grid-column: 1 / -1;
+  border-bottom: var(--border-thick);
+  padding: 1.5rem;
+}
+
+.app__sidebar {
+  border-right: var(--border-thick);
+  padding: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.app__main {
+  padding: 1.5rem;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.app__footer {
+  grid-column: 1 / -1;
+  border-top: var(--border-thick);
+  padding: 1rem 1.5rem;
+}
+
+.panel {
+  border: var(--border-thick);
+  padding: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.panel__title {
+  margin: 0;
+  font-size: 1.1rem;
+  text-transform: uppercase;
+}
+
+.panel__alert {
+  border: var(--border-thick);
+  color: var(--accent);
+  padding: 0.75rem 1rem;
+}
+
+.grid-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.grid-stack--two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.tag {
+  display: inline-block;
+  border: var(--border-thin);
+  padding: 0.25rem 0.5rem;
+}

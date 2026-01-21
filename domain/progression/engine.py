@@ -101,18 +101,32 @@ def _summarize_session(session: dict) -> SessionPerformance:
     )
 
 
+def _session_has_initial_load(session: dict) -> bool:
+    return any(set_entry.get("is_initial_load", False) for set_entry in session.get("sets", []))
+
+
+def _truncate_sessions_at_initial_load(session_list: list[dict]) -> list[dict]:
+    for index, session in enumerate(session_list):
+        if _session_has_initial_load(session):
+            return session_list[: index + 1]
+    return session_list
+
+
 def evaluate_progression_state(sessions: Iterable[dict]) -> ProgressionState:
     session_list = list(sessions)
     if not session_list:
         return ProgressionState(last_session=None, consecutive_misses=0, has_prior_session=False)
 
+    session_list = _truncate_sessions_at_initial_load(session_list)
     performances = [_summarize_session(session) for session in session_list]
     has_standard_session = any(
         any(not set_entry.get("is_initial_load", False) for set_entry in session.get("sets", []))
         for session in session_list
     )
     consecutive_misses = 0
-    for performance in performances:
+    for session, performance in zip(session_list, performances):
+        if _session_has_initial_load(session):
+            break
         if performance.missed_minimum:
             consecutive_misses += 1
         else:

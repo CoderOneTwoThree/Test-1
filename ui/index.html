@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Brutalist UI Framework - Phase 5</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="app__header">
+        <h1>Phase 5 Brutalist Framework</h1>
+        <p>Rigid grid layout. High-contrast only. No softness.</p>
+      </header>
+      <aside class="app__sidebar">
+        <div class="panel">
+          <h2 class="panel__title">Navigation</h2>
+          <a href="#">Dashboard</a>
+          <a href="#">Workflows</a>
+          <a href="#">Reports</a>
+        </div>
+        <div class="panel">
+          <h2 class="panel__title">Quick Actions</h2>
+          <button type="button">Create</button>
+          <button type="button">Export</button>
+        </div>
+      </aside>
+      <main class="app__main">
+        <section class="panel">
+          <h2 class="panel__title">System Status</h2>
+          <div class="panel__alert">Alert: Manual review required.</div>
+          <div class="grid-stack grid-stack--two">
+            <div class="panel">
+              <h3 class="panel__title">Module A</h3>
+              <p class="tag">Active</p>
+            </div>
+            <div class="panel">
+              <h3 class="panel__title">Module B</h3>
+              <p class="tag">Queued</p>
+            </div>
+          </div>
+        </section>
+        <section class="panel">
+          <h2 class="panel__title">Input Zone</h2>
+          <label for="summary">Summary</label>
+          <input id="summary" type="text" placeholder="Type here" />
+          <label for="notes">Notes</label>
+          <textarea id="notes" rows="4" placeholder="No softness." ></textarea>
+        </section>
+      </main>
+      <footer class="app__footer">
+        <span>Brutalist UI System • Black / White / Red</span>
+      </footer>
+    </div>
+  </body>
+</html>

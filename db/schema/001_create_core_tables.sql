@@ -23,7 +23,7 @@ CREATE TABLE IF NOT EXISTS workout_sessions (
     performed_at TIMESTAMP NOT NULL,
     duration_minutes INTEGER,
     notes TEXT,
-    completion_status TEXT NOT NULL DEFAULT 'completed'
+    completion_status TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS set_logs (
@@ -34,6 +34,7 @@ CREATE TABLE IF NOT EXISTS set_logs (
     weight NUMERIC(7,2),
     rpe NUMERIC(3,1),
     rest_seconds INTEGER,
+    is_initial_load INTEGER NOT NULL DEFAULT 0,
     PRIMARY KEY (session_id, exercise_id, set_number)
 );
 

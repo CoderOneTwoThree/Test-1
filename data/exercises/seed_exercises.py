@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import argparse
 import pathlib
-import sqlite3
 from typing import Iterable, List, Tuple
 
+from db.connection import get_db_connection
 
 def parse_exercise_rows(lines: Iterable[str]) -> List[Tuple[str, str, str, str, str, str]]:
     rows = []
@@ -29,7 +29,7 @@ def chunked(items: List[Tuple[str, str, str, str, str, str]], size: int) -> Iter
 
 
 def seed_sqlite(db_path: pathlib.Path, rows: List[Tuple[str, str, str, str, str, str]], batch_size: int) -> None:
-    connection = sqlite3.connect(db_path)
+    connection = get_db_connection(db_path)
     cursor = connection.cursor()
     cursor.execute("DELETE FROM exercises")
     connection.commit()

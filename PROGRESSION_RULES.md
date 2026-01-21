@@ -28,7 +28,7 @@
 - Miss target reps in 2 consecutive sessions for the same lift: -5% next session.
 - Miss target reps in 3 consecutive sessions: -10% next session.
 - Return to increases only after 1 session meets all Preconditions.
-- Manual form audit: if a user manually triggers a Form Alert (via UI), apply a one-time 10% deload to the target weight for the next session of those lifts.
+- Manual form audit: if a user manually triggers a Form Alert (via UI), apply a one-time 10% deload to the target weight for the next session of those lifts. This override takes priority over other deload rules.
 
 ## Edge cases (missed sessions, exercise swap, first time logging)
 - Missed session: repeat last completed weight on return.

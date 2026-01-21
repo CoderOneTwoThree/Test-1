@@ -18,6 +18,7 @@
 - How many days per week can you train?
 - How much time can you spend per session?
 - Which days of the week are you available to train?
+- If training 5 days per week, do you prefer push/pull/legs + upper/lower or push/pull/legs + push/pull?
 
 ## Equipment & Environment
 - Equipment access (required single-select; store key in parentheses):

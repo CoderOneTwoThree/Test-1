@@ -1,10 +1,10 @@
 - Goal=general_fitness -> Split=full_body when weekly_frequency<=3; Split=upper_lower when weekly_frequency in [4]; Split=push_pull_legs when weekly_frequency>=5.
 - Goal=muscle_gain -> Split=upper_lower when weekly_frequency in [3,4]; Split=push_pull_legs when weekly_frequency>=5; Split=full_body only when weekly_frequency<=2.
-- Goal=strength -> Split=full_body when weekly_frequency<=3; Split=upper_lower when weekly_frequency in [4,5]; Split=push_pull_legs when weekly_frequency>=6.
+- Goal=strength -> Split=full_body when weekly_frequency<=3; Split=upper_lower when weekly_frequency in [4]; Split=push_pull_legs when weekly_frequency>=5.
 - Goal=weight_loss -> Split=full_body when weekly_frequency<=3; Split=upper_lower when weekly_frequency in [4]; Split=push_pull_legs when weekly_frequency>=5.
 - Experience=beginner -> Volume=low; Exercises=prioritize_compound_movements; Limit=1-2_accessory_per_muscle_group.
-- Experience=intermediate -> Volume=moderate; Exercises=compound_plus_accessory_balance; Include=moderate_variation.
-- Experience=advanced -> Volume=high; Exercises=compound_plus_specialization; Include=advanced_variations_and_intensity_techniques.
+- Experience=intermediate -> Volume=moderate; Exercises=compound_plus_accessory_balance; Selection=deterministic_sorted_by_name.
+- Experience=advanced -> Volume=high; Exercises=compound_plus_specialization; Selection=deterministic_sorted_by_name.
 - Equipment=none -> Exercise_pool=bodyweight_only; Exclude=barbell_dumbbell_machine_movements.
 - Equipment=dumbbells_only -> Exercise_pool=bodyweight_plus_dumbbell; Exclude=barbell_machine_movements.
 - Equipment=home_gym -> Exercise_pool=bodyweight_barbell_dumbbell_basic_bench_rack; Exclude=machine_only_movements.
@@ -23,3 +23,4 @@
 - Weekly_frequency=6 -> Plan_structure=push_pull_legs_repeat.
 - Weekly_frequency>=7 -> Plan_structure=push_pull_legs_repeat_plus_optional_full_body_or_recovery_day.
 - Rest Days: Intercalate rest days between sessions to maximize recovery. Avoid >2 consecutive training days unless Frequency >= 6.
+- Exercise variation is currently manual via swaps; automatic rotation is not enabled.

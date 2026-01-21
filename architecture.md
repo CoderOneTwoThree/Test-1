@@ -12,12 +12,14 @@
 - **QuestionnaireResponse**: user_id, answered_at, goals, experience_level, schedule_days, equipment_available, injuries_constraints, excluded_patterns
 - **Plan**: id, user_id, name, start_date, weeks, generated_from_questionnaire_id
 - **PlanWorkout**: plan_id, day_index, template_id
+- **PlannedExerciseSwap**: id, plan_id, day_index, sequence, previous_exercise_id, new_exercise_id, swapped_at
 
 ## Main user flows
 - Log a workout session, record sets, and review history per exercise.
 - Get next-session progression recommendations for each exercise based on last best sets and recent volume trends.
 - Complete a short Q&A to generate a multi-week plan and save it to the calendar.
 - Edit a plan day, swap exercises, and persist changes for future sessions.
+- Review swap options immediately after plan generation and apply replacements as needed.
 
 ## API surface (endpoints or functions)
 - `POST /workouts/sessions` create session with set logs
@@ -31,6 +33,17 @@
 - `GET /plans/{id}` view plan
 - `PATCH /plans/{id}` update plan metadata
 - `PATCH /plans/{id}/workouts/{day_index}` swap or edit plan workout
+- `GET /plans/{id}/swap-options?day_index&sequence` fetch eligible exercise swaps
+- `PATCH /plans/{id}/swap` apply a swap to a planned exercise
+
+## Plan swap eligibility rules
+- Swap candidates must share the same movement_pattern as the original planned exercise.
+- Exercises must be allowed by the user’s questionnaire equipment_available mapping.
+- Experience rules mirror plan generation:
+  - Beginner: offer compound movements if any exist for the pattern; otherwise allow accessories.
+  - Intermediate/Advanced: offer compound then accessory movements for the pattern.
+- Excluded patterns from the questionnaire (comma-separated) remove all candidates for that pattern.
+- injuries_constraints are stored as free text and are not yet used for swap filtering.
 
 ## Rules-based vs engine
 - **Rules-based**: simple progression deltas (e.g., +2.5–5% weight if all target reps hit), deload triggers based on missed reps, template selection by equipment availability.

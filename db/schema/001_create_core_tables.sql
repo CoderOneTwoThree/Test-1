@@ -66,3 +66,28 @@ CREATE TABLE IF NOT EXISTS plan_workouts (
     template_id INTEGER,
     PRIMARY KEY (plan_id, day_index)
 );
+
+CREATE TABLE IF NOT EXISTS planned_exercises (
+    id INTEGER PRIMARY KEY,
+    plan_id INTEGER NOT NULL REFERENCES plans(id),
+    day_index INTEGER NOT NULL,
+    session_type TEXT NOT NULL,
+    sequence INTEGER NOT NULL,
+    exercise_id INTEGER NOT NULL REFERENCES exercises(id),
+    target_sets INTEGER NOT NULL,
+    target_reps_min INTEGER NOT NULL,
+    target_reps_max INTEGER NOT NULL,
+    starting_weight NUMERIC(7,2),
+    is_initial_load INTEGER NOT NULL DEFAULT 0,
+    UNIQUE (plan_id, day_index, sequence)
+);
+
+CREATE TABLE IF NOT EXISTS planned_exercise_swaps (
+    id INTEGER PRIMARY KEY,
+    plan_id INTEGER NOT NULL REFERENCES plans(id),
+    day_index INTEGER NOT NULL,
+    sequence INTEGER NOT NULL,
+    previous_exercise_id INTEGER NOT NULL REFERENCES exercises(id),
+    new_exercise_id INTEGER NOT NULL REFERENCES exercises(id),
+    swapped_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

@@ -9,9 +9,10 @@
 - **SetLog**: session_id, exercise_id, set_number, reps, weight, rpe, rest_seconds, is_initial_load
 - **ProgressionRecommendation**: user_id, exercise_id, basis (e.g., last_best, volume_trend), suggested_weight, suggested_reps, suggested_sets, created_at
 - **ManualFormAlert**: user_id, exercise_id, created_at, status (applied/cleared)
-- **QuestionnaireResponse**: user_id, answered_at, goals, experience_level, schedule_days, equipment_available, injuries_constraints, excluded_patterns
+- **QuestionnaireResponse**: user_id, answered_at, goals, experience_level, schedule_days, training_days_of_week, split_variant, equipment_available, injuries_constraints, excluded_patterns
 - **Plan**: id, user_id, name, start_date, weeks, generated_from_questionnaire_id
 - **PlanWorkout**: plan_id, day_index, template_id
+- **PlannedExercise**: plan_id, day_index, session_type, sequence, exercise_id, target_sets, target_reps_min, target_reps_max, starting_weight, is_initial_load
 - **PlannedExerciseSwap**: id, plan_id, day_index, sequence, previous_exercise_id, new_exercise_id, swapped_at
 
 ## Main user flows

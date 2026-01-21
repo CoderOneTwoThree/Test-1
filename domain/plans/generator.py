@@ -85,12 +85,16 @@ class PlanGenerator:
             smallest_increment = fetch_user_smallest_increment(
                 db, questionnaire["user_id"]
             )
+            weekly_frequency = questionnaire["schedule_days"]
+            training_days = self._resolve_training_days(
+                weekly_frequency, questionnaire.get("training_days_of_week")
+            )
             split = self._select_split(
                 questionnaire["goals"],
-                questionnaire["schedule_days"],
+                weekly_frequency,
             )
             week_structure = self._build_week_structure(
-                split, questionnaire["schedule_days"]
+                split, weekly_frequency, questionnaire.get("split_variant")
             )
             equipment_ids = self._equipment_ids_for(
                 questionnaire["equipment_available"]
@@ -100,6 +104,7 @@ class PlanGenerator:
             )
             exercises_by_pattern = self._group_by_pattern(exercise_pool)
             plan_days = self._build_plan_days(
+                training_days,
                 week_structure,
                 exercises_by_pattern,
                 questionnaire["experience_level"],
@@ -144,7 +149,7 @@ class PlanGenerator:
         if goal == "strength":
             if weekly_frequency <= 3:
                 return "full_body"
-            if weekly_frequency in {4, 5}:
+            if weekly_frequency == 4:
                 return "upper_lower"
             return "push_pull_legs"
         if goal == "weight_loss":
@@ -155,7 +160,12 @@ class PlanGenerator:
             return "push_pull_legs"
         raise ValueError("UNKNOWN_GOAL")
 
-    def _build_week_structure(self, split: str, weekly_frequency: int) -> list[str]:
+    def _build_week_structure(
+        self,
+        split: str,
+        weekly_frequency: int,
+        split_variant: str | None = None,
+    ) -> list[str]:
         if weekly_frequency <= 0:
             raise ValueError("weekly_frequency must be positive")
         if weekly_frequency == 1:
@@ -169,9 +179,7 @@ class PlanGenerator:
         if weekly_frequency == 4:
             return ["upper", "lower", "upper", "lower"]
         if weekly_frequency == 5:
-            if split == "push_pull_legs":
-                return ["push", "pull", "legs", "upper", "lower"]
-            return ["upper", "lower", "upper", "lower", "upper"]
+            return self._build_five_day_split(split, split_variant)
         if weekly_frequency == 6:
             return ["push", "pull", "legs", "push", "pull", "legs"]
         structure = ["push", "pull", "legs", "push", "pull", "legs", "full_body"]
@@ -206,12 +214,13 @@ class PlanGenerator:
 
     def _build_plan_days(
         self,
+        day_indices: list[int],
         week_structure: list[str],
         exercises_by_pattern: dict[str, list[ExerciseRow]],
         experience_level: str,
     ) -> list[PlanDay]:
         plan_days: list[PlanDay] = []
-        for day_index, session_type in enumerate(week_structure):
+        for day_index, session_type in zip(day_indices, week_structure, strict=True):
             patterns = SESSION_PATTERNS.get(session_type, [])
             accessory_count: dict[str, int] = {}
             selected_exercises: list[ExerciseRow] = []
@@ -243,6 +252,72 @@ class PlanGenerator:
                 )
             )
         return plan_days
+
+    def _build_five_day_split(
+        self, split: str, split_variant: str | None
+    ) -> list[str]:
+        if split != "push_pull_legs":
+            split = "push_pull_legs"
+        if split_variant is None:
+            split_variant = "ppl_upper_lower"
+        if split_variant == "ppl_upper_lower":
+            return ["push", "pull", "legs", "upper", "lower"]
+        if split_variant == "ppl_push_pull":
+            return ["push", "pull", "legs", "push", "pull"]
+        raise ValueError("INVALID_SPLIT_VARIANT")
+
+    def _resolve_training_days(
+        self, weekly_frequency: int, training_days_of_week: list[int] | None
+    ) -> list[int]:
+        if weekly_frequency > 7:
+            raise ValueError("WEEKLY_FREQUENCY_TOO_HIGH")
+        if training_days_of_week is None:
+            training_days = self._default_training_days(weekly_frequency)
+        else:
+            training_days = sorted(training_days_of_week)
+            if len(training_days) != weekly_frequency:
+                raise ValueError("TRAINING_DAY_COUNT_MISMATCH")
+        self._validate_training_day_spacing(training_days, weekly_frequency)
+        return training_days
+
+    def _default_training_days(self, weekly_frequency: int) -> list[int]:
+        defaults = {
+            1: [0],
+            2: [0, 3],
+            3: [0, 2, 4],
+            4: [0, 2, 4, 6],
+            5: [0, 2, 3, 5, 6],
+            6: [0, 1, 2, 4, 5, 6],
+            7: [0, 1, 2, 3, 4, 5, 6],
+        }
+        return defaults.get(weekly_frequency, list(range(weekly_frequency)))
+
+    def _validate_training_day_spacing(
+        self, training_days: list[int], weekly_frequency: int
+    ) -> None:
+        if not training_days:
+            raise ValueError("TRAINING_DAYS_REQUIRED")
+        if any(day < 0 or day > 6 for day in training_days):
+            raise ValueError("TRAINING_DAYS_OUT_OF_RANGE")
+        if len(set(training_days)) != len(training_days):
+            raise ValueError("TRAINING_DAYS_DUPLICATE")
+        if weekly_frequency >= 6:
+            return
+        max_consecutive = self._max_consecutive_training_days(training_days)
+        if max_consecutive > 2:
+            raise ValueError("TRAINING_DAYS_TOO_CONSECUTIVE")
+
+    def _max_consecutive_training_days(self, training_days: list[int]) -> int:
+        training_set = set(training_days)
+        consecutive = 0
+        max_consecutive = 0
+        for day in range(14):
+            if day % 7 in training_set:
+                consecutive += 1
+                max_consecutive = max(max_consecutive, consecutive)
+            else:
+                consecutive = 0
+        return max_consecutive
 
     def _select_exercise_for_pattern(
         self,

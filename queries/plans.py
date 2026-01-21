@@ -46,11 +46,20 @@ class PlannedExerciseDetail:
     primary_muscle: str
 
 
+def _parse_training_days(value: str | None) -> list[int] | None:
+    if value is None:
+        return None
+    days = [item.strip() for item in value.split(",") if item.strip()]
+    if not days:
+        return None
+    return [int(day) for day in days]
+
+
 def fetch_questionnaire_response(db: DbConnection, questionnaire_id: int) -> dict[str, Any]:
     cursor = db.execute(
         """
         SELECT id, user_id, goals, experience_level, schedule_days, equipment_available,
-               injuries_constraints, excluded_patterns
+               injuries_constraints, excluded_patterns, training_days_of_week, split_variant
         FROM questionnaire_responses
         WHERE id = ?
         """,
@@ -68,6 +77,8 @@ def fetch_questionnaire_response(db: DbConnection, questionnaire_id: int) -> dic
         "equipment_available": row[5],
         "injuries_constraints": row[6],
         "excluded_patterns": row[7],
+        "training_days_of_week": _parse_training_days(row[8]),
+        "split_variant": row[9],
     }
 
 

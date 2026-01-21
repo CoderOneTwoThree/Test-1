@@ -48,7 +48,9 @@ CREATE TABLE IF NOT EXISTS questionnaire_responses (
     schedule_days INTEGER NOT NULL,
     equipment_available TEXT NOT NULL,
     injuries_constraints TEXT,
-    excluded_patterns TEXT
+    excluded_patterns TEXT,
+    training_days_of_week TEXT,
+    split_variant TEXT
 );
 
 CREATE TABLE IF NOT EXISTS plans (

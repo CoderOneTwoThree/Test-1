@@ -5,7 +5,7 @@
 - **Exercise**: id, name, primary_muscle, equipment, movement_pattern, category
 - **WorkoutTemplate**: id, name, goal, difficulty, created_by_user_id
 - **WorkoutTemplateExercise**: template_id, exercise_id, order, target_sets, target_reps, target_rpe_or_intensity
-- **WorkoutSession**: id, user_id, template_id (nullable), performed_at, duration_minutes, notes
+- **WorkoutSession**: id, user_id, template_id (nullable), performed_at, duration_minutes, notes, completion_status (completed/partial/skipped)
 - **SetLog**: session_id, exercise_id, set_number, reps, weight, rpe, rest_seconds
 - **ProgressionRecommendation**: user_id, exercise_id, basis (e.g., last_best, volume_trend), suggested_weight, suggested_reps, suggested_sets, created_at
 - **QuestionnaireResponse**: user_id, answered_at, goals, experience_level, schedule_days, equipment_available, injuries_constraints, excluded_patterns

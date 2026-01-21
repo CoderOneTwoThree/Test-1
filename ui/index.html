@@ -103,6 +103,125 @@
       </footer>
     </div>
     <script>
+      const APP_STATE_STORAGE_KEY = "brutalist_app_state";
+
+      const createDefaultAppState = () => ({
+        is_onboarded: false,
+        current_plan: null,
+        active_session_id: null,
+      });
+
+      const loadAppState = () => {
+        const rawState = localStorage.getItem(APP_STATE_STORAGE_KEY);
+        if (!rawState) {
+          return createDefaultAppState();
+        }
+        try {
+          const parsed = JSON.parse(rawState);
+          return {
+            ...createDefaultAppState(),
+            ...parsed,
+          };
+        } catch (error) {
+          console.warn("App state reset: invalid stored JSON.", error);
+          return createDefaultAppState();
+        }
+      };
+
+      const persistAppState = (appState) => {
+        localStorage.setItem(APP_STATE_STORAGE_KEY, JSON.stringify(appState));
+      };
+
+      const appState = loadAppState();
+
+      const renderAppView = (view) => {
+        const appRoot = document.querySelector(".app");
+        if (appRoot) {
+          appRoot.dataset.appView = view;
+        }
+        console.info(`App view set to: ${view}`);
+      };
+
+      const evaluateAppState = () => {
+        if (!appState.is_onboarded) {
+          renderAppView("setup");
+          return "setup";
+        }
+        if (appState.active_session_id) {
+          renderAppView("active-logger");
+          return "active-logger";
+        }
+        renderAppView("dashboard");
+        return "dashboard";
+      };
+
+      const setOnboarded = (value) => {
+        appState.is_onboarded = value;
+        persistAppState(appState);
+        evaluateAppState();
+      };
+
+      const setCurrentPlan = (plan) => {
+        appState.current_plan = plan;
+        persistAppState(appState);
+      };
+
+      const startWorkoutSession = (exercises) => {
+        const sessionId = `session_${Date.now()}`;
+        appState.active_session_id = sessionId;
+        appState.active_session = {
+          id: sessionId,
+          started_at: new Date().toISOString(),
+          exercises,
+        };
+        persistAppState(appState);
+        evaluateAppState();
+        return sessionId;
+      };
+
+      const endWorkoutSession = () => {
+        appState.active_session_id = null;
+        appState.active_session = null;
+        persistAppState(appState);
+        evaluateAppState();
+      };
+
+      const buildRotationFromEquipment = (equipment) =>
+        equipment.map((item, index) => ({
+          id: `rotation_${index + 1}`,
+          label: item,
+          exercises: [
+            `${item}_primary`,
+            `${item}_secondary`,
+            `${item}_accessory`,
+          ],
+        }));
+
+      const generatePhase4Plan = (questionnaireState) => {
+        const rotation = buildRotationFromEquipment(
+          questionnaireState.equipment_id
+        );
+        return {
+          id: `plan_${Date.now()}`,
+          weeks: Array.from({ length: 8 }, (_, index) => ({
+            week: index + 1,
+            rotation_id: rotation[index % rotation.length]?.id ?? null,
+          })),
+          rotation,
+          questionnaire_snapshot: { ...questionnaireState },
+        };
+      };
+
+      const startWorkoutFromPlan = () => {
+        const plan = appState.current_plan;
+        if (!plan || !plan.rotation || plan.rotation.length === 0) {
+          console.warn("No plan rotation available to start a workout.");
+          return null;
+        }
+        const rotationItem = plan.rotation[0];
+        return startWorkoutSession(rotationItem.exercises);
+      };
+
       const state = {
         equipment_id: [],
         smallest_increment: null,
@@ -228,8 +347,10 @@
             throw new Error(`Request failed with status ${response.status}`);
           }
           setSubmitStatus("Payload sent to backend.");
+          return true;
         } catch (error) {
           setSubmitStatus(`Submit failed: ${error.message}`, true);
+          return false;
         }
       };
 
@@ -252,12 +373,24 @@
             setSubmitStatus("Submit blocked: required fields missing.", true);
             return;
           }
-          submitPayload();
+          submitPayload().then((isSubmitted) => {
+            if (!isSubmitted) return;
+            const generatedPlan = generatePhase4Plan(state);
+            setCurrentPlan(generatedPlan);
+            setOnboarded(true);
+          });
+        }
+        if (event.target.matches("[data-start-workout]")) {
+          startWorkoutFromPlan();
+        }
+        if (event.target.matches("[data-end-workout]")) {
+          endWorkoutSession();
         }
       });
 
       setActiveStep(1);
       updateOutput();
+      evaluateAppState();
     </script>
   </body>
 </html>

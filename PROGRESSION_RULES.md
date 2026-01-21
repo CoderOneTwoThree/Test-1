@@ -3,6 +3,7 @@
 ## Preconditions (what must be true to advance)
 - Lift logged for the current session.
 - All prescribed work sets completed.
+- All working sets must meet minimum rep count (6).
 - First set hits 12 reps and last set hits at least 10 reps (1–2 RIR).
 - No form break logged.
 - At least 1 prior session for the same lift exists.
@@ -13,7 +14,7 @@
 - Lower-body compound (squat, deadlift, leg press): +5 lb.
 - Upper-body compound (bench, overhead press, row): +2.5 lb.
 - Accessories/isolation (curls, raises, flyes): +2.5 lb.
-- If fractional plates are unavailable: round down to nearest available increment.
+- If fractional plates are unavailable: round down to nearest available increment (default 5lb/2.5kg).
 - After an increase, reset to 6–8 reps.
 
 ## Hold rules (when to keep weight the same)

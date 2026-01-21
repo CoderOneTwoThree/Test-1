@@ -1,0 +1,65 @@
+-- Core schema. Brutalist.
+CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY,
+    email TEXT NOT NULL UNIQUE,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    smallest_increment NUMERIC(6,2) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS exercises (
+    id INTEGER PRIMARY KEY,
+    name TEXT NOT NULL,
+    primary_muscle TEXT NOT NULL,
+    equipment TEXT NOT NULL,
+    movement_pattern TEXT NOT NULL,
+    category TEXT NOT NULL,
+    equipment_id TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS workout_sessions (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    template_id INTEGER,
+    performed_at TIMESTAMP NOT NULL,
+    duration_minutes INTEGER,
+    notes TEXT
+);
+
+CREATE TABLE IF NOT EXISTS set_logs (
+    session_id INTEGER NOT NULL REFERENCES workout_sessions(id),
+    exercise_id INTEGER NOT NULL REFERENCES exercises(id),
+    set_number INTEGER NOT NULL,
+    reps INTEGER NOT NULL,
+    weight NUMERIC(7,2),
+    rpe NUMERIC(3,1),
+    rest_seconds INTEGER,
+    PRIMARY KEY (session_id, exercise_id, set_number)
+);
+
+CREATE TABLE IF NOT EXISTS questionnaire_responses (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    answered_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    goals TEXT NOT NULL,
+    experience_level TEXT NOT NULL,
+    schedule_days INTEGER NOT NULL,
+    equipment_available TEXT NOT NULL,
+    injuries_constraints TEXT,
+    excluded_patterns TEXT
+);
+
+CREATE TABLE IF NOT EXISTS plans (
+    id INTEGER PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id),
+    name TEXT NOT NULL,
+    start_date DATE NOT NULL,
+    weeks INTEGER NOT NULL,
+    generated_from_questionnaire_id INTEGER REFERENCES questionnaire_responses(id)
+);
+
+CREATE TABLE IF NOT EXISTS plan_workouts (
+    plan_id INTEGER NOT NULL REFERENCES plans(id),
+    day_index INTEGER NOT NULL,
+    template_id INTEGER,
+    PRIMARY KEY (plan_id, day_index)
+);

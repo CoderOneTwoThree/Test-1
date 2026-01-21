@@ -22,7 +22,8 @@ CREATE TABLE IF NOT EXISTS workout_sessions (
     template_id INTEGER,
     performed_at TIMESTAMP NOT NULL,
     duration_minutes INTEGER,
-    notes TEXT
+    notes TEXT,
+    completion_status TEXT NOT NULL DEFAULT 'completed'
 );
 
 CREATE TABLE IF NOT EXISTS set_logs (

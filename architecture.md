@@ -5,9 +5,10 @@
 - **Exercise**: id, name, primary_muscle, equipment, movement_pattern, category
 - **WorkoutTemplate**: id, name, goal, difficulty, created_by_user_id
 - **WorkoutTemplateExercise**: template_id, exercise_id, order, target_sets, target_reps, target_rpe_or_intensity
-- **WorkoutSession**: id, user_id, template_id (nullable), performed_at, duration_minutes, notes, completion_status (completed/partial/skipped)
+- **WorkoutSession**: id, user_id, template_id (nullable), performed_at, duration_minutes, notes, completion_status (completed/partial/skipped), manual_audit_flag
 - **SetLog**: session_id, exercise_id, set_number, reps, weight, rpe, rest_seconds, is_initial_load
 - **ProgressionRecommendation**: user_id, exercise_id, basis (e.g., last_best, volume_trend), suggested_weight, suggested_reps, suggested_sets, created_at
+- **ManualFormAlert**: user_id, exercise_id, created_at, status (applied/cleared)
 - **QuestionnaireResponse**: user_id, answered_at, goals, experience_level, schedule_days, equipment_available, injuries_constraints, excluded_patterns
 - **Plan**: id, user_id, name, start_date, weeks, generated_from_questionnaire_id
 - **PlanWorkout**: plan_id, day_index, template_id
@@ -24,6 +25,7 @@
 - `GET /exercises/{id}/history?user_id` return recent set logs and bests
 - `POST /progression/recommendations` generate recommendations for a session or exercise
 - `GET /progression/recommendations?user_id&exercise_id` fetch latest recommendation
+- `POST /progression/form-alerts` create a manual form alert that triggers a one-time 10% deload for the next session
 - `POST /questionnaire` submit Q&A, requires snake_case fields and equipment_available, stores smallest_increment
 - `POST /plans/generate` create plan from questionnaire
 - `GET /plans/{id}` view plan

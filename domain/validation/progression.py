@@ -10,7 +10,7 @@ class ProgressionCheck:
 
 
 def validate_progression_eligibility(check: ProgressionCheck) -> bool:
-    return check.all_sets_completed is True and check.min_reps >= 6 and check.form_break is False
+    return check.all_sets_completed is True and check.min_reps >= 6
 
 
 def round_down_to_increment(target_weight: float, smallest_increment: float) -> float:

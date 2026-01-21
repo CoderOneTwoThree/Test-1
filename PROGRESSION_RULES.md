@@ -5,7 +5,6 @@
 - All prescribed work sets completed.
 - All working sets must meet minimum rep count (6).
 - First set hits 12 reps and last set hits at least 10 reps (1–2 RIR).
-- No form break logged.
 - At least 1 prior session for the same lift exists.
 
 ## Increase rules (how much to add, by lift type)
@@ -21,7 +20,6 @@
 ## Hold rules (when to keep weight the same)
 - Any set missed or below target reps.
 - Any set below 6 reps counts as a missed target rep.
-- Form break logged on any set.
 - Less than 2 sessions completed for the lift.
 - Deload in effect.
 
@@ -29,6 +27,7 @@
 - Miss target reps in 2 consecutive sessions for the same lift: -5% next session.
 - Miss target reps in 3 consecutive sessions: -10% next session.
 - Return to increases only after 1 session meets all Preconditions.
+- Manual form audit: if a user manually triggers a Form Alert (via UI), apply a one-time 10% deload to the target weight for the next session of those lifts.
 
 ## Edge cases (missed sessions, exercise swap, first time logging)
 - Missed session: repeat last completed weight on return.

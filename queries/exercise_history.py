@@ -9,7 +9,7 @@ def _fetch_recent_session_rows(
 ) -> list[tuple]:
     cursor = db.execute(
         """
-        SELECT ws.id, ws.performed_at, ws.duration_minutes, ws.notes, ws.completion_status
+        SELECT ws.id, ws.performed_at, ws.duration_minutes, ws.notes, ws.completion_status, ws.manual_audit_flag
         FROM workout_sessions ws
         JOIN set_logs sl ON sl.session_id = ws.id
         WHERE ws.user_id = ? AND sl.exercise_id = ?
@@ -104,6 +104,7 @@ def fetch_exercise_history(
                     "duration_minutes": row[2],
                     "notes": row[3],
                     "completion_status": row[4],
+                    "manual_audit_flag": bool(row[5]),
                     "sets": sets_by_session.get(row[0], []),
                 }
             )

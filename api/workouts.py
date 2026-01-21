@@ -4,18 +4,22 @@ from db.connection import DbConnection, get_db_connection
 from domain.workouts.logging import SessionInput, SetLogInput, validate_session
 
 
-def _ensure_exercise_ids(db: DbConnection, exercise_ids: set[int]) -> None:
+def _fetch_exercise_categories(
+    db: DbConnection, exercise_ids: set[int]
+) -> dict[int, str]:
     if not exercise_ids:
-        return
+        return {}
     placeholders = ",".join("?" for _ in exercise_ids)
     cursor = db.execute(
-        f"SELECT id FROM exercises WHERE id IN ({placeholders})",
+        f"SELECT id, category FROM exercises WHERE id IN ({placeholders})",
         tuple(exercise_ids),
     )
-    existing_ids = {row[0] for row in cursor.fetchall()}
-    missing = exercise_ids - existing_ids
+    rows = cursor.fetchall()
+    categories = {row[0]: row[1] for row in rows}
+    missing = exercise_ids - categories.keys()
     if missing:
         raise ValueError("INVALID_EXERCISE_ID")
+    return categories
 
 
 def create_session(db_path: str, payload: dict[str, Any]) -> int:
@@ -40,8 +44,14 @@ def create_session(db_path: str, payload: dict[str, Any]) -> int:
         )
         for entry in payload["set_logs"]
     ]
-    _ensure_exercise_ids(db, {set_log.exercise_id for set_log in set_logs})
-    validate_session(session, set_logs)
+    exercise_ids = {set_log.exercise_id for set_log in set_logs}
+    categories = _fetch_exercise_categories(db, exercise_ids)
+    bodyweight_exercise_ids = {
+        exercise_id
+        for exercise_id, category in categories.items()
+        if category.lower() == "bodyweight"
+    }
+    validate_session(session, set_logs, bodyweight_exercise_ids)
 
     try:
         with db:

@@ -12,7 +12,7 @@ class SetLogInput:
     exercise_id: int
     set_number: int
     reps: int
-    weight: float
+    weight: float | None
     rpe: float
     rest_seconds: int
     is_initial_load: bool
@@ -28,13 +28,19 @@ class SessionInput:
     template_id: int | None
 
 
-def validate_set_log(set_log: SetLogInput) -> None:
+def validate_set_log(set_log: SetLogInput, is_bodyweight: bool) -> None:
     if set_log.set_number <= 0:
         raise ValueError("set_number must be positive")
     if set_log.reps <= 0:
         raise ValueError("reps must be positive")
-    if set_log.weight <= 0:
-        raise ValueError("weight must be positive")
+    if is_bodyweight:
+        if set_log.weight is None:
+            raise ValueError("weight is required")
+        if set_log.weight < 0:
+            raise ValueError("weight cannot be negative")
+    else:
+        if set_log.weight is None or set_log.weight <= 0:
+            raise ValueError("weight must be positive")
     if not REPS_MIN <= set_log.reps <= REPS_MAX:
         raise ValueError("reps must be between 6 and 12")
     if set_log.rpe is None:
@@ -47,7 +53,11 @@ def validate_set_log(set_log: SetLogInput) -> None:
         raise ValueError("is_initial_load must be boolean")
 
 
-def validate_session(session: SessionInput, set_logs: Iterable[SetLogInput]) -> None:
+def validate_session(
+    session: SessionInput,
+    set_logs: Iterable[SetLogInput],
+    bodyweight_exercise_ids: set[int],
+) -> None:
     if session.completion_status not in COMPLETION_STATUSES:
         raise ValueError("completion_status must be completed, partial, or skipped")
     if session.user_id <= 0:
@@ -58,7 +68,7 @@ def validate_session(session: SessionInput, set_logs: Iterable[SetLogInput]) -> 
     if not set_logs:
         raise ValueError("set_logs must not be empty")
     for set_log in set_logs:
-        validate_set_log(set_log)
+        validate_set_log(set_log, set_log.exercise_id in bodyweight_exercise_ids)
 
 
 def auto_fill_from_last_session(last_session_sets: Iterable[SetLogInput]) -> list[SetLogInput]:

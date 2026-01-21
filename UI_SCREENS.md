@@ -18,8 +18,8 @@
 
 ## 3) Plan Summary
 - **Primary purpose:** Present the generated plan at a high level before execution.
-- **Key data shown:** Plan overview, schedule summary, key milestones.
-- **Primary user actions:** Confirm plan, adjust plan parameters (if supported), proceed to Dashboard.
+- **Key data shown:** Plan overview, schedule summary, key milestones, daily exercise list.
+- **Primary user actions:** Confirm plan, swap exercises, adjust plan parameters (if supported), proceed to Dashboard.
 - **Navigation in/out:**
   - **In:** From Onboarding / Questionnaire.
   - **Out:** Dashboard (on confirmation); Settings (optional adjustments).

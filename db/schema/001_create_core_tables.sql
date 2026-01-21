@@ -23,7 +23,8 @@ CREATE TABLE IF NOT EXISTS workout_sessions (
     performed_at TIMESTAMP NOT NULL,
     duration_minutes INTEGER,
     notes TEXT,
-    completion_status TEXT NOT NULL
+    completion_status TEXT NOT NULL,
+    manual_audit_flag INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS set_logs (

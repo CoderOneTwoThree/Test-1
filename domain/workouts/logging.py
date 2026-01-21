@@ -26,6 +26,7 @@ class SessionInput:
     notes: str | None
     completion_status: str
     template_id: int | None
+    manual_audit_flag: bool
 
 
 def validate_set_log(set_log: SetLogInput, is_bodyweight: bool) -> None:
@@ -64,6 +65,8 @@ def validate_session(
         raise ValueError("user_id must be positive")
     if not session.performed_at:
         raise ValueError("performed_at is required")
+    if not isinstance(session.manual_audit_flag, bool):
+        raise ValueError("manual_audit_flag must be boolean")
     set_logs = list(set_logs)
     if not set_logs:
         raise ValueError("set_logs must not be empty")

@@ -31,6 +31,7 @@ def create_session(db_path: str, payload: dict[str, Any]) -> int:
         notes=payload.get("notes"),
         completion_status=payload["completion_status"],
         template_id=payload.get("template_id"),
+        manual_audit_flag=payload.get("manual_audit_flag", False),
     )
     set_logs = [
         SetLogInput(
@@ -58,8 +59,8 @@ def create_session(db_path: str, payload: dict[str, Any]) -> int:
             cursor = db.execute(
                 """
                 INSERT INTO workout_sessions
-                    (user_id, template_id, performed_at, duration_minutes, notes, completion_status)
-                VALUES (?, ?, ?, ?, ?, ?)
+                    (user_id, template_id, performed_at, duration_minutes, notes, completion_status, manual_audit_flag)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     session.user_id,
@@ -68,6 +69,7 @@ def create_session(db_path: str, payload: dict[str, Any]) -> int:
                     session.duration_minutes,
                     session.notes,
                     session.completion_status,
+                    1 if session.manual_audit_flag else 0,
                 ),
             )
             session_id = cursor.lastrowid

@@ -14,43 +14,250 @@
       </header>
       <aside class="app__sidebar">
         <div class="panel">
-          <h2 class="panel__title">Navigation</h2>
-          <a href="#">Dashboard</a>
-          <a href="#">Workflows</a>
-          <a href="#">Reports</a>
+          <h2 class="panel__title">Progress</h2>
+          <ol class="progress-list">
+            <li class="progress-list__item" data-step-indicator="1">Equipment</li>
+            <li class="progress-list__item" data-step-indicator="2">Increment</li>
+            <li class="progress-list__item" data-step-indicator="3">Goal</li>
+            <li class="progress-list__item" data-step-indicator="4">Review</li>
+          </ol>
         </div>
         <div class="panel">
-          <h2 class="panel__title">Quick Actions</h2>
-          <button type="button">Create</button>
-          <button type="button">Export</button>
+          <h2 class="panel__title">Output Keys</h2>
+          <ul class="key-list">
+            <li>equipment_id</li>
+            <li>smallest_increment</li>
+            <li>fitness_goal</li>
+          </ul>
         </div>
       </aside>
       <main class="app__main">
-        <section class="panel">
-          <h2 class="panel__title">System Status</h2>
-          <div class="panel__alert">Alert: Manual review required.</div>
-          <div class="grid-stack grid-stack--two">
-            <div class="panel">
-              <h3 class="panel__title">Module A</h3>
-              <p class="tag">Active</p>
-            </div>
-            <div class="panel">
-              <h3 class="panel__title">Module B</h3>
-              <p class="tag">Queued</p>
-            </div>
+        <section class="panel questionnaire" data-step="1">
+          <h2 class="panel__title">Step 1 • Equipment Picker</h2>
+          <p class="panel__note">Select all that apply. Required.</p>
+          <div class="tile-grid" data-equipment-grid>
+            <button class="tile" type="button" data-equipment="barbell">Barbell</button>
+            <button class="tile" type="button" data-equipment="dumbbell">Dumbbell</button>
+            <button class="tile" type="button" data-equipment="kettlebell">Kettlebell</button>
+            <button class="tile" type="button" data-equipment="bodyweight">Bodyweight</button>
+            <button class="tile" type="button" data-equipment="bands">Bands</button>
+            <button class="tile" type="button" data-equipment="machines">Machines</button>
+          </div>
+          <div class="panel__alert panel__alert--hidden" data-equipment-error>
+            Required: choose at least one equipment tile.
+          </div>
+          <div class="questionnaire__actions">
+            <button type="button" class="action action--primary" data-next>Next</button>
           </div>
         </section>
-        <section class="panel">
-          <h2 class="panel__title">Input Zone</h2>
-          <label for="summary">Summary</label>
-          <input id="summary" type="text" placeholder="Type here" />
-          <label for="notes">Notes</label>
-          <textarea id="notes" rows="4" placeholder="No softness." ></textarea>
+
+        <section class="panel questionnaire questionnaire--hidden" data-step="2">
+          <h2 class="panel__title">Step 2 • Increment Picker</h2>
+          <p class="panel__note">Choose the smallest load increment. Required.</p>
+          <div class="increment-grid">
+            <button class="increment" type="button" data-increment="1.25">1.25 kg</button>
+            <button class="increment" type="button" data-increment="2.5">2.5 kg</button>
+            <button class="increment" type="button" data-increment="5">5 kg</button>
+          </div>
+          <div class="panel__alert panel__alert--hidden" data-increment-error>
+            Required: select a smallest increment.
+          </div>
+          <div class="questionnaire__actions">
+            <button type="button" class="action" data-back>Back</button>
+            <button type="button" class="action action--primary" data-next>Next</button>
+          </div>
+        </section>
+
+        <section class="panel questionnaire questionnaire--hidden" data-step="3">
+          <h2 class="panel__title">Step 3 • Goal Picker</h2>
+          <p class="panel__note">Pick one primary goal. Required.</p>
+          <div class="goal-grid">
+            <button class="goal" type="button" data-goal="strength">Strength</button>
+            <button class="goal" type="button" data-goal="hypertrophy">Hypertrophy</button>
+            <button class="goal" type="button" data-goal="endurance">Endurance</button>
+          </div>
+          <div class="panel__alert panel__alert--hidden" data-goal-error>
+            Required: choose a primary goal.
+          </div>
+          <div class="questionnaire__actions">
+            <button type="button" class="action" data-back>Back</button>
+            <button type="button" class="action action--primary" data-next>Review</button>
+          </div>
+        </section>
+
+        <section class="panel questionnaire questionnaire--hidden" data-step="4">
+          <h2 class="panel__title">Step 4 • Review Output</h2>
+          <p class="panel__note">JSON output must match Phase 2 keys.</p>
+          <pre class="output" data-output>{}</pre>
+          <div class="questionnaire__actions">
+            <button type="button" class="action" data-back>Back</button>
+            <button type="button" class="action action--primary" data-submit>Submit</button>
+          </div>
+          <div class="panel__alert panel__alert--hidden" data-submit-status>
+            Payload sent to backend.
+          </div>
         </section>
       </main>
       <footer class="app__footer">
-        <span>Brutalist UI System • Black / White / Red</span>
+        <span>Plan Generator Questionnaire • Brutalist • No softness</span>
       </footer>
     </div>
+    <script>
+      const state = {
+        equipment_id: [],
+        smallest_increment: null,
+        fitness_goal: null,
+      };
+
+      const steps = Array.from(document.querySelectorAll("[data-step]"));
+      const progressItems = Array.from(
+        document.querySelectorAll("[data-step-indicator]")
+      );
+      let currentStep = 1;
+
+      const equipmentGrid = document.querySelector("[data-equipment-grid]");
+      const incrementButtons = Array.from(
+        document.querySelectorAll("[data-increment]")
+      );
+      const goalButtons = Array.from(document.querySelectorAll("[data-goal]"));
+      const output = document.querySelector("[data-output]");
+
+      const equipmentError = document.querySelector("[data-equipment-error]");
+      const incrementError = document.querySelector("[data-increment-error]");
+      const goalError = document.querySelector("[data-goal-error]");
+      const submitStatus = document.querySelector("[data-submit-status]");
+
+      const updateOutput = () => {
+        output.textContent = JSON.stringify(state, null, 2);
+      };
+
+      const setSubmitStatus = (message, isError = false) => {
+        submitStatus.textContent = message;
+        submitStatus.classList.remove("panel__alert--hidden");
+        submitStatus.classList.toggle("panel__alert--error", isError);
+      };
+
+      const setActiveStep = (step) => {
+        currentStep = step;
+        steps.forEach((panel) => {
+          panel.classList.toggle(
+            "questionnaire--hidden",
+            Number(panel.dataset.step) !== step
+          );
+        });
+        progressItems.forEach((item) => {
+          item.classList.toggle(
+            "progress-list__item--active",
+            Number(item.dataset.stepIndicator) === step
+          );
+        });
+      };
+
+      const validateStep = () => {
+        if (currentStep === 1) {
+          const isValid = state.equipment_id.length > 0;
+          equipmentError.classList.toggle("panel__alert--hidden", isValid);
+          return isValid;
+        }
+        if (currentStep === 2) {
+          const isValid = Boolean(state.smallest_increment);
+          incrementError.classList.toggle("panel__alert--hidden", isValid);
+          return isValid;
+        }
+        if (currentStep === 3) {
+          const isValid = Boolean(state.fitness_goal);
+          goalError.classList.toggle("panel__alert--hidden", isValid);
+          return isValid;
+        }
+        return true;
+      };
+
+      equipmentGrid.addEventListener("click", (event) => {
+        const button = event.target.closest("[data-equipment]");
+        if (!button) return;
+        const value = button.dataset.equipment;
+        if (state.equipment_id.includes(value)) {
+          state.equipment_id = state.equipment_id.filter(
+            (item) => item !== value
+          );
+          button.classList.remove("tile--selected");
+        } else {
+          state.equipment_id = [...state.equipment_id, value];
+          button.classList.add("tile--selected");
+        }
+        equipmentError.classList.toggle(
+          "panel__alert--hidden",
+          state.equipment_id.length > 0
+        );
+        updateOutput();
+      });
+
+      incrementButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          incrementButtons.forEach((btn) =>
+            btn.classList.remove("increment--selected")
+          );
+          button.classList.add("increment--selected");
+          state.smallest_increment = Number(button.dataset.increment);
+          incrementError.classList.add("panel__alert--hidden");
+          updateOutput();
+        });
+      });
+
+      goalButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          goalButtons.forEach((btn) => btn.classList.remove("goal--selected"));
+          button.classList.add("goal--selected");
+          state.fitness_goal = button.dataset.goal;
+          goalError.classList.add("panel__alert--hidden");
+          updateOutput();
+        });
+      });
+
+      const submitPayload = async () => {
+        const payload = { ...state };
+        try {
+          const response = await fetch("/questionnaire", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
+          if (!response.ok) {
+            throw new Error(`Request failed with status ${response.status}`);
+          }
+          setSubmitStatus("Payload sent to backend.");
+        } catch (error) {
+          setSubmitStatus(`Submit failed: ${error.message}`, true);
+        }
+      };
+
+      document.addEventListener("click", (event) => {
+        if (event.target.matches("[data-next]")) {
+          if (validateStep()) {
+            setActiveStep(currentStep + 1);
+            updateOutput();
+          }
+        }
+        if (event.target.matches("[data-back]")) {
+          setActiveStep(currentStep - 1);
+        }
+        if (event.target.matches("[data-submit]")) {
+          const allValid =
+            state.equipment_id.length > 0 &&
+            state.smallest_increment &&
+            state.fitness_goal;
+          if (!allValid) {
+            setSubmitStatus("Submit blocked: required fields missing.", true);
+            return;
+          }
+          submitPayload();
+        }
+      });
+
+      setActiveStep(1);
+      updateOutput();
+    </script>
   </body>
 </html>

@@ -14,7 +14,8 @@
 - Lower-body compound (squat, deadlift, leg press): +5 lb.
 - Upper-body compound (bench, overhead press, row): +2.5 lb.
 - Accessories/isolation (curls, raises, flyes): +2.5 lb.
-- If fractional plates are unavailable: round down to nearest available increment (default 5lb/2.5kg).
+- If fractional plates are unavailable: round down to nearest available increment.
+- Use the user's smallest available equipment increment for all rounding (ex: 10 lb plate pairs, fixed dumbbell jumps, or 2.5 kg plates).
 - After an increase, reset to 6–8 reps.
 
 ## Hold rules (when to keep weight the same)
@@ -32,4 +33,5 @@
 ## Edge cases (missed sessions, exercise swap, first time logging)
 - Missed session: repeat last completed weight on return.
 - Exercise swap: treat as new lift; start with an empty progression history.
+- Exercise swap with empty history: recommend a conservative starting load using equipment defaults, then round to the smallest available increment.
 - First time logging a lift: hold for 2 sessions before any increase.

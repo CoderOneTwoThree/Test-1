@@ -20,7 +20,7 @@
 - Which days of the week are you available to train?
 
 ## Equipment & Environment
-- Equipment access (single-select; store key in parentheses):
+- Equipment access (required single-select; store key in parentheses):
   - None (none)
   - Dumbbells Only (dumbbells_only)
   - Home Gym (home_gym)

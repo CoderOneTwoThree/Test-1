@@ -1,13 +1,17 @@
 # Workout Plan Intake Questionnaire
 
 ## Goals
-- What is your primary fitness goal?
-- Do you have a secondary goal?
-- What is your target timeline for this plan?
+- Primary fitness goal (single-select; store key in parentheses):
+  - General Fitness (general_fitness)
+  - Muscle Gain (muscle_gain)
+  - Strength (strength)
+  - Weight Loss (weight_loss)
 
 ## Experience & Current Activity
-- How long have you been training consistently?
-- What types of training have you done before?
+- Training experience level (single-select; store key in parentheses):
+  - Beginner (beginner)
+  - Intermediate (intermediate)
+  - Advanced (advanced)
 - How many days per week are you currently active?
 
 ## Schedule & Availability
@@ -16,7 +20,11 @@
 - Which days of the week are you available to train?
 
 ## Equipment & Environment
-- What equipment do you have access to?
+- Equipment access (single-select; store key in parentheses):
+  - None (none)
+  - Dumbbells Only (dumbbells_only)
+  - Home Gym (home_gym)
+  - Full Gym (full_gym)
 - Where will you train (home, gym, outdoors)?
 
 ## Health & Limitations

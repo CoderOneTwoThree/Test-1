@@ -9,6 +9,12 @@
 - Equipment=dumbbells_only -> Exercise_pool=bodyweight_plus_dumbbell; Exclude=barbell_machine_movements.
 - Equipment=home_gym -> Exercise_pool=bodyweight_barbell_dumbbell_basic_bench_rack; Exclude=machine_only_movements.
 - Equipment=full_gym -> Exercise_pool=all_available_movements.
+- Equipment_ID=bodyweight -> Allowed_for_equipment=[none, dumbbells_only, home_gym, full_gym].
+- Equipment_ID=dumbbell -> Allowed_for_equipment=[dumbbells_only, home_gym, full_gym].
+- Equipment_ID=barbell -> Allowed_for_equipment=[home_gym, full_gym].
+- Equipment_ID=band -> Allowed_for_equipment=[none, dumbbells_only, home_gym, full_gym].
+- Equipment_ID=cable -> Allowed_for_equipment=[full_gym].
+- Equipment_ID=machine -> Allowed_for_equipment=[full_gym].
 - Weekly_frequency=1 -> Plan_structure=1_full_body_session.
 - Weekly_frequency=2 -> Plan_structure=2_full_body_sessions.
 - Weekly_frequency=3 -> Plan_structure=3_full_body_sessions_or_upper_lower_full_rotation.
@@ -16,3 +22,4 @@
 - Weekly_frequency=5 -> Plan_structure=push_pull_legs_upper_lower_or_push_pull_legs_push_pull.
 - Weekly_frequency=6 -> Plan_structure=push_pull_legs_repeat.
 - Weekly_frequency>=7 -> Plan_structure=push_pull_legs_repeat_plus_optional_full_body_or_recovery_day.
+- Rest Days: Intercalate rest days between sessions to maximize recovery. Avoid >2 consecutive training days unless Frequency >= 6.

@@ -17,6 +17,7 @@
 ## Validation rules
 - Required questions must be answered before proceeding to the next step.
 - Optional questions may be skipped without providing an answer.
+- Equipment access is required; the flow must block progress until a selection is made.
 - Single select requires exactly one option when required.
 - Multi select requires at least one option when required.
 - Numeric answers must be a valid number when provided; required numeric questions must have a valid number.

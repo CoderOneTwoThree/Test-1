@@ -15,6 +15,7 @@
 - Accessories/isolation (curls, raises, flyes): +2.5 lb.
 - If fractional plates are unavailable: round down to nearest available increment.
 - Use the user's smallest available equipment increment for all rounding (ex: 10 lb plate pairs, fixed dumbbell jumps, or 2.5 kg plates).
+- Outcome-first rounding: if rounding down would not exceed the current working weight (i.e., it regresses or stays flat), hold the current weight instead of increasing.
 - After an increase, reset to 6–8 reps.
 
 ## Hold rules (when to keep weight the same)

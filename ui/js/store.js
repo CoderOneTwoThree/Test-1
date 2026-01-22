@@ -1,5 +1,7 @@
 const STORAGE_KEYS = {
   currentPlan: "ui.currentPlan",
+  pendingPlanId: "ui.pendingPlanId",
+  activePlanId: "ui.activePlanId",
   activeSession: "ui.activeSession",
   onboardingData: "ui.onboardingData",
   completedSteps: "ui.completedSteps",
@@ -7,6 +9,8 @@ const STORAGE_KEYS = {
 
 const state = {
   currentPlan: null,
+  pendingPlanId: null,
+  activePlanId: null,
   activeSession: null,
   onboardingData: {
     user_id: 1,
@@ -51,6 +55,12 @@ const init = () => {
   state.currentPlan = parseStoredValue(
     localStorage.getItem(STORAGE_KEYS.currentPlan),
   );
+  state.pendingPlanId = parseStoredValue(
+    localStorage.getItem(STORAGE_KEYS.pendingPlanId),
+  );
+  state.activePlanId = parseStoredValue(
+    localStorage.getItem(STORAGE_KEYS.activePlanId),
+  );
   state.activeSession = parseStoredValue(
     localStorage.getItem(STORAGE_KEYS.activeSession),
   );
@@ -70,6 +80,8 @@ const init = () => {
 
 const getState = () => ({
   currentPlan: state.currentPlan,
+  pendingPlanId: state.pendingPlanId,
+  activePlanId: state.activePlanId,
   activeSession: state.activeSession,
   onboardingData: {
     ...state.onboardingData,
@@ -83,9 +95,39 @@ const setCurrentPlan = (plan) => {
   persistValue(STORAGE_KEYS.currentPlan, state.currentPlan);
 };
 
+const setPendingPlanId = (planId) => {
+  if (planId === null || planId === undefined || planId === "") {
+    state.pendingPlanId = null;
+  } else {
+    const parsed = Number(planId);
+    state.pendingPlanId = Number.isNaN(parsed) ? null : parsed;
+  }
+  persistValue(STORAGE_KEYS.pendingPlanId, state.pendingPlanId);
+};
+
+const setActivePlanId = (planId) => {
+  if (planId === null || planId === undefined || planId === "") {
+    state.activePlanId = null;
+  } else {
+    const parsed = Number(planId);
+    state.activePlanId = Number.isNaN(parsed) ? null : parsed;
+  }
+  persistValue(STORAGE_KEYS.activePlanId, state.activePlanId);
+};
+
+const getActivePlanId = () => state.activePlanId;
+
 const setActiveSession = (session) => {
   state.activeSession = session ?? null;
   persistValue(STORAGE_KEYS.activeSession, state.activeSession);
+};
+
+const getActiveSession = () => state.activeSession;
+
+const initializeSession = (sessionData) => {
+  const payload = sessionData ?? null;
+  setActiveSession(payload);
+  return payload;
 };
 
 const setOnboardingData = (data) => {
@@ -177,7 +219,12 @@ const Store = {
   init,
   getState,
   setCurrentPlan,
+  setPendingPlanId,
+  setActivePlanId,
+  getActivePlanId,
   setActiveSession,
+  getActiveSession,
+  initializeSession,
   setOnboardingData,
   setStepComplete,
   isStepAccessible,

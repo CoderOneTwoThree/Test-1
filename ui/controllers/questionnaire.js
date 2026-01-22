@@ -391,7 +391,18 @@ class QuestionnaireController {
         const text = await response.text();
         throw new Error(text || "Request failed");
       }
-      this.setSubmitStatus("Intake submitted. Redirecting...", false);
+      let responseData = null;
+      try {
+        responseData = await response.json();
+      } catch (error) {
+        responseData = null;
+      }
+      const planId =
+        responseData?.plan_id ?? responseData?.planId ?? responseData?.id ?? null;
+      if (planId) {
+        this.store.setPendingPlanId(planId);
+      }
+      this.setSubmitStatus("Intake submitted. Plan synchronized.", false);
       this.viewManager.show("plan_summary");
       this.store.resetOnboarding();
     } catch (error) {

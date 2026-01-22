@@ -220,6 +220,25 @@ button:disabled {
   background: var(--bg);
 }
 
+.tile--compact {
+  height: auto;
+  min-height: 64px;
+  padding: 0.75rem 1rem;
+  display: grid;
+  gap: 0.35rem;
+  align-content: start;
+}
+
+.tile__label {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.75rem;
+}
+
+.tile__value {
+  font-size: 0.95rem;
+}
+
 .tile--selected,
 .increment--selected,
 .goal--selected {
@@ -272,4 +291,46 @@ button:disabled {
 
 .review-row__value {
   font-size: 0.95rem;
+}
+
+.session-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.session-row__details {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.session-row__name {
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.session-row__meta {
+  font-size: 0.85rem;
+}
+
+.modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.2);
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  padding: 2rem;
+  z-index: 10;
+}
+
+.modal--hidden {
+  display: none;
+}
+
+.modal__panel {
+  width: min(720px, 100%);
+  max-height: 80vh;
+  overflow: auto;
 }

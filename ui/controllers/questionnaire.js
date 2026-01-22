@@ -77,8 +77,12 @@ class QuestionnaireController {
     document.addEventListener("click", (event) => {
       if (event.target.matches("[data-next]")) {
         if (this.validateStep()) {
-          this.setActiveStep(this.currentStep + 1);
-          this.updateOutput();
+          this.store.setStepComplete(this.currentStep);
+          const nextStep = this.currentStep + 1;
+          if (this.viewManager.show("questionnaire", { step: nextStep })) {
+            this.setActiveStep(nextStep);
+            this.updateOutput();
+          }
         }
       }
       if (event.target.matches("[data-back]")) {

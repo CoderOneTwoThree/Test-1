@@ -9,6 +9,7 @@ class SessionController {
     this.statusAlert = document.querySelector("[data-session-status]");
     this.exerciseGrid = document.querySelector("[data-session-exercises]");
     this.saveButton = document.querySelector("[data-save-session]");
+    this.defaultSaveLabel = this.saveButton?.textContent ?? "Save Session";
     this.planData = null;
     this.activeSession = null;
     this.exercises = [];
@@ -17,6 +18,7 @@ class SessionController {
     this.draftKey = "ui.sessionDraft";
     this.draftState = null;
     this.isSaving = false;
+    this.isReadOnly = false;
   }
 
   init() {
@@ -39,6 +41,9 @@ class SessionController {
 
     if (this.root) {
       this.root.addEventListener("click", (event) => {
+        if (this.isReadOnly) {
+          return;
+        }
         const addButton = event.target.closest("[data-add-set]");
         if (!addButton) {
           return;
@@ -62,9 +67,15 @@ class SessionController {
 
     if (this.root) {
       this.root.addEventListener("input", () => {
+        if (this.isReadOnly) {
+          return;
+        }
         this.persistDraft();
       });
       this.root.addEventListener("change", () => {
+        if (this.isReadOnly) {
+          return;
+        }
         this.persistDraft();
       });
     }
@@ -76,6 +87,7 @@ class SessionController {
       this.setStatus("Session missing. Return to dashboard.", true);
       return;
     }
+    this.isReadOnly = Boolean(this.activeSession?.readOnly);
     this.draftState = this.loadDraft();
 
     await this.loadPlanData();
@@ -98,8 +110,13 @@ class SessionController {
 
     await this.loadRecommendations();
     this.renderExercises();
-    if (this.missingTargets.size > 0) {
+    this.applyReadOnlyState();
+    if (this.missingTargets.size > 0 && !this.isReadOnly) {
       this.setStatus("Target sync required.", true);
+      return;
+    }
+    if (this.isReadOnly) {
+      this.setStatus("Read-only view. Session locked.", false);
       return;
     }
     this.setStatus("Session ready for logging.", false);
@@ -182,7 +199,7 @@ class SessionController {
 
     await Promise.all(recommendationTasks);
     if (this.saveButton) {
-      this.saveButton.disabled = this.missingTargets.size > 0;
+      this.saveButton.disabled = this.missingTargets.size > 0 || this.isReadOnly;
     }
   }
 
@@ -239,6 +256,24 @@ class SessionController {
 
       this.exerciseGrid.appendChild(card);
     });
+  }
+
+  applyReadOnlyState() {
+    if (!this.root) {
+      return;
+    }
+    const shouldDisable = this.isReadOnly;
+    this.root
+      .querySelectorAll("input, textarea, select, button[data-add-set]")
+      .forEach((field) => {
+        field.disabled = shouldDisable;
+      });
+    if (this.saveButton) {
+      this.saveButton.disabled = shouldDisable || this.missingTargets.size > 0;
+      this.saveButton.textContent = shouldDisable
+        ? "Read Only"
+        : this.defaultSaveLabel;
+    }
   }
 
   formatTarget(exercise) {
@@ -463,6 +498,11 @@ class SessionController {
       return;
     }
 
+    if (this.isReadOnly) {
+      this.setStatus("Read-only view. Session locked.", true);
+      return;
+    }
+
     if (this.isSaving) {
       return;
     }
@@ -543,7 +583,7 @@ class SessionController {
     } finally {
       this.isSaving = false;
       if (this.saveButton) {
-        this.saveButton.disabled = this.missingTargets.size > 0;
+        this.saveButton.disabled = this.missingTargets.size > 0 || this.isReadOnly;
       }
     }
   }

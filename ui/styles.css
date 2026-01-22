@@ -97,6 +97,21 @@ button:disabled {
   padding: 1rem 1.5rem;
 }
 
+.nav-list {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.nav-button {
+  width: 100%;
+  text-align: left;
+}
+
+.nav-button--active {
+  background: var(--accent);
+  color: var(--bg);
+}
+
 .panel {
   border: var(--border-thick);
   padding: 1.5rem;
@@ -162,6 +177,71 @@ button:disabled {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
+}
+
+.history-layout {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(0, 3fr);
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.history-sidebar {
+  align-self: start;
+}
+
+.history-detail {
+  min-width: 0;
+}
+
+.history-list {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.history-entry {
+  border: var(--border-thin);
+  padding: 0.5rem 0.75rem;
+  display: grid;
+  gap: 0.25rem;
+  text-align: left;
+  width: 100%;
+}
+
+.history-entry__title {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.history-entry__meta {
+  font-size: 0.8rem;
+}
+
+.history-entry--active {
+  border: var(--border-thick);
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.history-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+}
+
+.history-table th,
+.history-table td {
+  border: var(--border-thin);
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.history-ascii {
+  margin: 0;
+  padding: 0.75rem;
+  border: var(--border-thin);
+  background: var(--bg);
+  white-space: pre-wrap;
 }
 
 .progress-list {

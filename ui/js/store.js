@@ -9,9 +9,20 @@ const state = {
   currentPlan: null,
   activeSession: null,
   onboardingData: {
-    equipment_id: [],
+    user_id: 1,
+    equipment_available: null,
     smallest_increment: null,
     goals: null,
+    experience_level: null,
+    schedule_days: null,
+    training_days_of_week: [],
+    split_variant: null,
+    injuries_constraints: null,
+    excluded_patterns: null,
+    age: null,
+    sex: null,
+    height: null,
+    weight: null,
   },
   completedSteps: [],
 };
@@ -62,7 +73,7 @@ const getState = () => ({
   activeSession: state.activeSession,
   onboardingData: {
     ...state.onboardingData,
-    equipment_id: [...state.onboardingData.equipment_id],
+    training_days_of_week: [...state.onboardingData.training_days_of_week],
   },
   completedSteps: [...state.completedSteps],
 });
@@ -79,15 +90,35 @@ const setActiveSession = (session) => {
 
 const setOnboardingData = (data) => {
   state.onboardingData = {
-    equipment_id: Array.isArray(data?.equipment_id)
-      ? [...data.equipment_id]
-      : [],
+    user_id: Number(data?.user_id) > 0 ? Number(data.user_id) : 1,
+    equipment_available: data?.equipment_available ?? null,
     smallest_increment:
       data?.smallest_increment === null ||
       data?.smallest_increment === undefined
         ? null
         : Number(data.smallest_increment),
     goals: data?.goals ?? null,
+    experience_level: data?.experience_level ?? null,
+    schedule_days:
+      data?.schedule_days === null || data?.schedule_days === undefined
+        ? null
+        : Number(data.schedule_days),
+    training_days_of_week: Array.isArray(data?.training_days_of_week)
+      ? data.training_days_of_week.map((day) => Number(day))
+      : [],
+    split_variant: data?.split_variant ?? null,
+    injuries_constraints: data?.injuries_constraints ?? null,
+    excluded_patterns: data?.excluded_patterns ?? null,
+    age: data?.age === null || data?.age === undefined ? null : Number(data.age),
+    sex: data?.sex ?? null,
+    height:
+      data?.height === null || data?.height === undefined
+        ? null
+        : Number(data.height),
+    weight:
+      data?.weight === null || data?.weight === undefined
+        ? null
+        : Number(data.weight),
   };
   persistValue(STORAGE_KEYS.onboardingData, state.onboardingData);
 };
@@ -120,25 +151,26 @@ const updateOnboardingData = (partialData) => {
   persistValue(STORAGE_KEYS.onboardingData, state.onboardingData);
 };
 
-const addEquipment = (equipmentId) => {
-  if (state.onboardingData.equipment_id.includes(equipmentId)) {
-    return;
-  }
+const resetOnboarding = () => {
   state.onboardingData = {
-    ...state.onboardingData,
-    equipment_id: [...state.onboardingData.equipment_id, equipmentId],
+    user_id: 1,
+    equipment_available: null,
+    smallest_increment: null,
+    goals: null,
+    experience_level: null,
+    schedule_days: null,
+    training_days_of_week: [],
+    split_variant: null,
+    injuries_constraints: null,
+    excluded_patterns: null,
+    age: null,
+    sex: null,
+    height: null,
+    weight: null,
   };
+  state.completedSteps = [];
   persistValue(STORAGE_KEYS.onboardingData, state.onboardingData);
-};
-
-const removeEquipment = (equipmentId) => {
-  state.onboardingData = {
-    ...state.onboardingData,
-    equipment_id: state.onboardingData.equipment_id.filter(
-      (item) => item !== equipmentId,
-    ),
-  };
-  persistValue(STORAGE_KEYS.onboardingData, state.onboardingData);
+  persistValue(STORAGE_KEYS.completedSteps, state.completedSteps);
 };
 
 const Store = {
@@ -150,14 +182,18 @@ const Store = {
   setStepComplete,
   isStepAccessible,
   updateOnboardingData,
-  addEquipment,
-  removeEquipment,
+  resetOnboarding,
   isOnboardingComplete: () => {
     const { onboardingData } = state;
     return (
-      onboardingData.equipment_id.length > 0 &&
+      Boolean(onboardingData.user_id) &&
+      Boolean(onboardingData.equipment_available) &&
       Boolean(onboardingData.smallest_increment) &&
-      Boolean(onboardingData.goals)
+      Boolean(onboardingData.goals) &&
+      Boolean(onboardingData.experience_level) &&
+      Boolean(onboardingData.schedule_days) &&
+      onboardingData.training_days_of_week.length ===
+        Number(onboardingData.schedule_days)
     );
   },
 };

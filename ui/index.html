@@ -8,6 +8,26 @@
   </head>
   <body>
     <div class="app">
+      <header class="app__header">
+        <h1 class="panel__title">Performance Console</h1>
+      </header>
+      <aside class="app__sidebar">
+        <h2 class="panel__title">Main Navigation</h2>
+        <nav class="nav-list" aria-label="Main navigation">
+          <button class="nav-button" type="button" data-nav-target="dashboard">
+            Dashboard
+          </button>
+          <button class="nav-button" type="button" data-nav-target="history">
+            Progress / History
+          </button>
+          <button class="nav-button" type="button" data-nav-target="plan_summary">
+            Plan Summary
+          </button>
+          <button class="nav-button" type="button" data-nav-target="settings">
+            Settings
+          </button>
+        </nav>
+      </aside>
       <main class="app__main">
         <section class="panel" data-screen-id="welcome"></section>
         <section class="panel questionnaire screen--hidden" data-screen-id="questionnaire">
@@ -538,7 +558,56 @@
             </button>
           </div>
         </section>
-        <section class="panel screen--hidden" data-screen-id="history"></section>
+        <section class="panel screen--hidden" data-screen-id="history">
+          <h2 class="panel__title">Progress / History</h2>
+          <p class="panel__note">
+            Review performance trends, session completion, and lift history.
+          </p>
+          <div class="panel__alert panel__alert--hidden" data-history-status></div>
+          <div class="history-layout">
+            <aside class="panel history-sidebar">
+              <h3 class="panel__title">Exercise List</h3>
+              <p class="panel__note">
+                Select an exercise to load history.
+              </p>
+              <div class="history-list" data-history-exercise-list></div>
+            </aside>
+            <div class="grid-stack history-detail">
+              <div class="panel">
+                <h3 class="panel__title">Session Archive</h3>
+                <p class="panel__note">Date | Duration | Status</p>
+                <div class="history-list" data-history-session-list></div>
+              </div>
+              <div class="grid-stack grid-stack--two">
+                <div class="panel">
+                  <h3 class="panel__title">Metric: Absolute Strength</h3>
+                  <div class="grid-stack" data-history-best-sets></div>
+                </div>
+                <div class="panel">
+                  <h3 class="panel__title">Volume History</h3>
+                  <p class="panel__note" data-history-trend>
+                    Volume Trend (7-day): Status pending.
+                  </p>
+                  <pre class="history-ascii" data-history-volume-bars></pre>
+                </div>
+              </div>
+              <div class="panel">
+                <h3 class="panel__title">Recent Logs</h3>
+                <table class="history-table">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Sets</th>
+                      <th>Total Volume</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody data-history-recent-logs></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
         <section class="panel screen--hidden" data-screen-id="settings"></section>
       </main>
     </div>

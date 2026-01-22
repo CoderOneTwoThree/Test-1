@@ -2,6 +2,7 @@ import { QuestionnaireController } from "../controllers/questionnaire.js";
 import { DashboardController } from "../controllers/dashboard.js";
 import { PlanSummaryController } from "../controllers/plan_summary.js";
 import { SessionController } from "../controllers/session.js";
+import { HistoryController } from "../controllers/history.js";
 import { Store } from "./store.js";
 import { ViewManager } from "./view-manager.js";
 
@@ -26,11 +27,22 @@ const initControllers = (context) => {
 const initApp = () => {
   Store.init();
   const viewManager = new ViewManager();
+  const navButtons = document.querySelectorAll("[data-nav-target]");
+
+  navButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      const target = button.dataset.navTarget;
+      if (target) {
+        viewManager.show(target);
+      }
+    });
+  });
 
   registerController("questionnaire", QuestionnaireController);
   registerController("plan_summary", PlanSummaryController);
   registerController("dashboard", DashboardController);
   registerController("session_detail", SessionController);
+  registerController("history", HistoryController);
 
   initControllers({ store: Store, viewManager });
   viewManager.show("welcome");

@@ -57,11 +57,23 @@ const groupExercisesByDay = (items = []) => {
     const name =
       item.name ?? item.exercise_name ?? item.exerciseName ?? item.exercise?.name;
     entry.exercises.push({
+      exercise_id: Number(
+        item.exercise_id ??
+          item.exerciseId ??
+          item.id ??
+          item.exercise?.id ??
+          null,
+      ),
       name: name ?? "Unnamed Exercise",
+      category: item.category ?? item.exercise?.category ?? null,
       sequence: Number(item.sequence ?? item.order ?? entry.exercises.length + 1),
       target_sets: item.target_sets ?? item.targetSets ?? null,
       target_reps_min: item.target_reps_min ?? item.targetRepsMin ?? null,
       target_reps_max: item.target_reps_max ?? item.targetRepsMax ?? null,
+      starting_weight: item.starting_weight ?? item.startingWeight ?? null,
+      is_initial_load: Boolean(
+        item.is_initial_load ?? item.isInitialLoad ?? false,
+      ),
     });
   });
   return Array.from(grouped.values()).sort(
@@ -108,18 +120,30 @@ const normalizePlanData = (raw) => {
       day_index: Number(workout.day_index ?? workout.dayIndex ?? index),
       session_type: workout.session_type ?? workout.sessionType ?? "Session",
       exercises: exercises.map((exercise, index) => ({
+        exercise_id: Number(
+          exercise.exercise_id ??
+            exercise.exerciseId ??
+            exercise.id ??
+            exercise.exercise?.id ??
+            null,
+        ),
         name:
           exercise.name ??
           exercise.exercise_name ??
           exercise.exerciseName ??
           exercise.exercise?.name ??
           "Unnamed Exercise",
+        category: exercise.category ?? exercise.exercise?.category ?? null,
         sequence: Number(
           exercise.sequence ?? exercise.order ?? exercise.position ?? index + 1,
         ),
         target_sets: exercise.target_sets ?? exercise.targetSets ?? null,
         target_reps_min: exercise.target_reps_min ?? exercise.targetRepsMin ?? null,
         target_reps_max: exercise.target_reps_max ?? exercise.targetRepsMax ?? null,
+        starting_weight: exercise.starting_weight ?? exercise.startingWeight ?? null,
+        is_initial_load: Boolean(
+          exercise.is_initial_load ?? exercise.isInitialLoad ?? false,
+        ),
       })),
     };
   });

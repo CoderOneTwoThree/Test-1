@@ -521,7 +521,23 @@
         <section
           class="panel screen--hidden"
           data-screen-id="session_detail"
-        ></section>
+        >
+          <h2 class="panel__title">Session Detail</h2>
+          <p class="panel__note">
+            Log each set with exact performance metrics. Targets are static
+            reference values.
+          </p>
+          <div
+            class="panel__alert panel__alert--hidden"
+            data-session-status
+          ></div>
+          <div class="grid-stack" data-session-exercises></div>
+          <div class="questionnaire__actions">
+            <button class="action action--primary" type="button" data-save-session>
+              Save Session
+            </button>
+          </div>
+        </section>
         <section class="panel screen--hidden" data-screen-id="history"></section>
         <section class="panel screen--hidden" data-screen-id="settings"></section>
       </main>

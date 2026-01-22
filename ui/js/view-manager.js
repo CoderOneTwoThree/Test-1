@@ -9,8 +9,9 @@ class ViewManager {
     this.screens = Array.from(this.root.querySelectorAll("[data-screen-id]"));
   }
 
-  show(screenId) {
-    if (!this.canNavigateTo(screenId)) {
+  show(screenId, { step } = {}) {
+    if (!this.canNavigateTo(screenId, step)) {
+      this.showBlockedAlert("Navigation Blocked: Complete current step first.");
       return false;
     }
 
@@ -28,9 +29,28 @@ class ViewManager {
     return hasMatch;
   }
 
-  canNavigateTo(screenId) {
+  showBlockedAlert(message) {
+    const activeScreen = this.screens.find(
+      (screen) => !screen.classList.contains(this.hiddenClass),
+    );
+    if (!activeScreen) {
+      return;
+    }
+    const alert = activeScreen.querySelector(".panel__alert");
+    if (!alert) {
+      return;
+    }
+    alert.textContent = message;
+    alert.classList.remove("panel__alert--hidden");
+    alert.classList.add("panel__alert--error");
+  }
+
+  canNavigateTo(screenId, targetStep) {
     if (!ONBOARDING_SCREENS.includes(screenId)) {
       return true;
+    }
+    if (screenId === "questionnaire" && Number.isInteger(targetStep)) {
+      return Store.isStepAccessible(targetStep);
     }
     const targetIndex = ONBOARDING_SCREENS.indexOf(screenId);
     if (targetIndex <= 0) {

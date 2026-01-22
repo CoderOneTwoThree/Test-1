@@ -2,6 +2,7 @@ const STORAGE_KEYS = {
   currentPlan: "ui.currentPlan",
   activeSession: "ui.activeSession",
   onboardingData: "ui.onboardingData",
+  completedSteps: "ui.completedSteps",
 };
 
 const state = {
@@ -12,6 +13,7 @@ const state = {
     smallest_increment: null,
     goals: null,
   },
+  completedSteps: [],
 };
 
 const parseStoredValue = (value) => {
@@ -47,6 +49,12 @@ const init = () => {
   if (persistedOnboarding) {
     setOnboardingData(persistedOnboarding);
   }
+  const persistedCompletedSteps = parseStoredValue(
+    localStorage.getItem(STORAGE_KEYS.completedSteps),
+  );
+  if (Array.isArray(persistedCompletedSteps)) {
+    state.completedSteps = [...persistedCompletedSteps];
+  }
 };
 
 const getState = () => ({
@@ -56,6 +64,7 @@ const getState = () => ({
     ...state.onboardingData,
     equipment_id: [...state.onboardingData.equipment_id],
   },
+  completedSteps: [...state.completedSteps],
 });
 
 const setCurrentPlan = (plan) => {
@@ -81,6 +90,26 @@ const setOnboardingData = (data) => {
     goals: data?.goals ?? null,
   };
   persistValue(STORAGE_KEYS.onboardingData, state.onboardingData);
+};
+
+const setStepComplete = (stepIndex) => {
+  if (!Number.isInteger(stepIndex)) {
+    return;
+  }
+  if (!state.completedSteps.includes(stepIndex)) {
+    state.completedSteps = [...state.completedSteps, stepIndex];
+    persistValue(STORAGE_KEYS.completedSteps, state.completedSteps);
+  }
+};
+
+const isStepAccessible = (stepIndex) => {
+  if (!Number.isInteger(stepIndex)) {
+    return false;
+  }
+  if (stepIndex === 1) {
+    return true;
+  }
+  return state.completedSteps.includes(stepIndex - 1);
 };
 
 const updateOnboardingData = (partialData) => {
@@ -118,6 +147,8 @@ const Store = {
   setCurrentPlan,
   setActiveSession,
   setOnboardingData,
+  setStepComplete,
+  isStepAccessible,
   updateOnboardingData,
   addEquipment,
   removeEquipment,

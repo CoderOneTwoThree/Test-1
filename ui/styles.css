@@ -149,6 +149,10 @@ button {
   display: none;
 }
 
+.screen--hidden {
+  display: none;
+}
+
 .questionnaire__actions {
   display: flex;
   gap: 1rem;

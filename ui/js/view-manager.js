@@ -46,6 +46,9 @@ class ViewManager {
   }
 
   canNavigateTo(screenId, targetStep) {
+    if (screenId === "session_detail") {
+      return Boolean(Store.getActiveSession?.());
+    }
     if (!ONBOARDING_SCREENS.includes(screenId)) {
       return true;
     }

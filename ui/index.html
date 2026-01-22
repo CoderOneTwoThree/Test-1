@@ -447,8 +447,77 @@
             </div>
           </div>
         </section>
-        <section class="panel screen--hidden" data-screen-id="plan_summary"></section>
-        <section class="panel screen--hidden" data-screen-id="dashboard"></section>
+        <section class="panel screen--hidden" data-screen-id="plan_summary">
+          <h2 class="panel__title">Plan Summary</h2>
+          <p class="panel__note">
+            Plan synchronized. Review the plan before activation.
+          </p>
+          <div
+            class="panel__alert panel__alert--hidden"
+            data-plan-summary-status
+          ></div>
+          <div class="grid-stack grid-stack--two">
+            <div class="panel">
+              <h3 class="panel__title">Plan Overview</h3>
+              <div class="tile-grid" data-plan-overview></div>
+            </div>
+            <div class="panel">
+              <h3 class="panel__title">Weekly Schedule</h3>
+              <div class="tile-grid" data-plan-schedule></div>
+            </div>
+          </div>
+          <div class="panel">
+            <h3 class="panel__title">Daily Exercise List</h3>
+            <div class="grid-stack" data-plan-exercises></div>
+          </div>
+          <div class="questionnaire__actions">
+            <button class="action action--primary" type="button" data-accept-plan>
+              Accept Plan
+            </button>
+          </div>
+        </section>
+        <section class="panel screen--hidden" data-screen-id="dashboard">
+          <h2 class="panel__title">Dashboard</h2>
+          <p class="panel__note">Plan synchronized. Review today’s workload.</p>
+          <div
+            class="panel__alert panel__alert--hidden"
+            data-dashboard-status
+          ></div>
+          <div class="grid-stack grid-stack--two">
+            <div class="panel">
+              <h3 class="panel__title">Today’s Workout</h3>
+              <div class="tile-grid" data-today-summary></div>
+              <div class="questionnaire__actions">
+                <button
+                  class="action action--primary"
+                  type="button"
+                  data-start-session
+                >
+                  Start Session
+                </button>
+              </div>
+            </div>
+            <div class="panel">
+              <h3 class="panel__title">Session Snapshot</h3>
+              <div class="grid-stack" data-session-snapshot></div>
+            </div>
+          </div>
+          <div class="modal modal--hidden" data-swap-modal>
+            <div class="panel modal__panel">
+              <h3 class="panel__title">Swap Options</h3>
+              <div
+                class="panel__alert panel__alert--hidden"
+                data-swap-status
+              ></div>
+              <div class="tile-grid" data-swap-options></div>
+              <div class="questionnaire__actions">
+                <button class="action" type="button" data-swap-close>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
         <section
           class="panel screen--hidden"
           data-screen-id="session_detail"

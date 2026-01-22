@@ -1,4 +1,6 @@
 import { QuestionnaireController } from "../controllers/questionnaire.js";
+import { DashboardController } from "../controllers/dashboard.js";
+import { PlanSummaryController } from "../controllers/plan_summary.js";
 import { Store } from "./store.js";
 import { ViewManager } from "./view-manager.js";
 
@@ -25,6 +27,8 @@ const initApp = () => {
   const viewManager = new ViewManager();
 
   registerController("questionnaire", QuestionnaireController);
+  registerController("plan_summary", PlanSummaryController);
+  registerController("dashboard", DashboardController);
 
   initControllers({ store: Store, viewManager });
   viewManager.show("welcome");

@@ -260,6 +260,7 @@ class DashboardController {
       }
       this.store.initializeSession(sessionData);
       this.setStatus("Session initialized.", false);
+      window.dispatchEvent(new CustomEvent("session:started"));
       this.viewManager.show("session_detail");
     } catch (error) {
       this.setStatus(

@@ -10,30 +10,451 @@
     <div class="app">
       <main class="app__main">
         <section class="panel" data-screen-id="welcome"></section>
-        <section
-          class="panel screen--hidden"
-          data-screen-id="questionnaire"
-        ></section>
-        <section
-          class="panel screen--hidden"
-          data-screen-id="plan_summary"
-        ></section>
-        <section
-          class="panel screen--hidden"
-          data-screen-id="dashboard"
-        ></section>
+        <section class="panel questionnaire screen--hidden" data-screen-id="questionnaire">
+          <h2 class="panel__title">Intake Questionnaire</h2>
+          <div class="grid-stack grid-stack--two">
+            <div class="grid-stack">
+              <p class="panel__note">
+                Complete each section in order. Required fields block forward
+                navigation.
+              </p>
+              <ol class="progress-list">
+                <li class="progress-list__item" data-step-indicator="1">
+                  Equipment
+                </li>
+                <li class="progress-list__item" data-step-indicator="2">
+                  Load Increment
+                </li>
+                <li class="progress-list__item" data-step-indicator="3">
+                  Goals
+                </li>
+                <li class="progress-list__item" data-step-indicator="4">
+                  Experience
+                </li>
+                <li class="progress-list__item" data-step-indicator="5">
+                  Schedule
+                </li>
+                <li class="progress-list__item" data-step-indicator="6">
+                  Measurements
+                </li>
+                <li class="progress-list__item" data-step-indicator="7">
+                  Health
+                </li>
+                <li class="progress-list__item" data-step-indicator="8">
+                  Review
+                </li>
+              </ol>
+            </div>
+            <div class="grid-stack">
+              <div class="grid-stack" data-step="1">
+                <h3 class="panel__title">Equipment &amp; Environment</h3>
+                <p class="panel__note">Select one equipment profile.</p>
+                <div
+                  class="panel__alert panel__alert--hidden"
+                  data-equipment-error
+                >
+                  Equipment selection is required.
+                </div>
+                <div class="tile-grid" data-equipment-grid>
+                  <button class="tile" type="button" data-equipment="none">
+                    None
+                  </button>
+                  <button
+                    class="tile"
+                    type="button"
+                    data-equipment="dumbbells_only"
+                  >
+                    Dumbbells Only
+                  </button>
+                  <button class="tile" type="button" data-equipment="home_gym">
+                    Home Gym
+                  </button>
+                  <button class="tile" type="button" data-equipment="full_gym">
+                    Full Gym
+                  </button>
+                </div>
+                <div class="questionnaire__actions">
+                  <button class="action action--primary" type="button" data-next>
+                    Next
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid-stack questionnaire--hidden" data-step="2">
+                <h3 class="panel__title">Load Increment</h3>
+                <p class="panel__note">
+                  Choose the smallest weight jump you can load.
+                </p>
+                <div
+                  class="panel__alert panel__alert--hidden"
+                  data-increment-error
+                >
+                  Smallest increment is required.
+                </div>
+                <div class="increment-grid">
+                  <button
+                    class="increment"
+                    type="button"
+                    data-increment="2.5"
+                  >
+                    2.5 lb
+                  </button>
+                  <button
+                    class="increment"
+                    type="button"
+                    data-increment="5"
+                  >
+                    5 lb
+                  </button>
+                  <button
+                    class="increment"
+                    type="button"
+                    data-increment="10"
+                  >
+                    10 lb
+                  </button>
+                </div>
+                <div class="questionnaire__actions">
+                  <button class="action" type="button" data-back>Back</button>
+                  <button class="action action--primary" type="button" data-next>
+                    Next
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid-stack questionnaire--hidden" data-step="3">
+                <h3 class="panel__title">Primary Goal</h3>
+                <div class="panel__alert panel__alert--hidden" data-goal-error>
+                  A primary goal is required.
+                </div>
+                <div class="goal-grid">
+                  <button class="goal" type="button" data-goal="general_fitness">
+                    General Fitness
+                  </button>
+                  <button class="goal" type="button" data-goal="muscle_gain">
+                    Muscle Gain
+                  </button>
+                  <button class="goal" type="button" data-goal="strength">
+                    Strength
+                  </button>
+                  <button class="goal" type="button" data-goal="weight_loss">
+                    Weight Loss
+                  </button>
+                </div>
+                <div class="questionnaire__actions">
+                  <button class="action" type="button" data-back>Back</button>
+                  <button class="action action--primary" type="button" data-next>
+                    Next
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid-stack questionnaire--hidden" data-step="4">
+                <h3 class="panel__title">Experience Level</h3>
+                <div
+                  class="panel__alert panel__alert--hidden"
+                  data-experience-error
+                >
+                  Experience level is required.
+                </div>
+                <div class="tile-grid">
+                  <button class="tile" type="button" data-experience="beginner">
+                    Beginner
+                  </button>
+                  <button
+                    class="tile"
+                    type="button"
+                    data-experience="intermediate"
+                  >
+                    Intermediate
+                  </button>
+                  <button class="tile" type="button" data-experience="advanced">
+                    Advanced
+                  </button>
+                </div>
+                <div class="questionnaire__actions">
+                  <button class="action" type="button" data-back>Back</button>
+                  <button class="action action--primary" type="button" data-next>
+                    Next
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid-stack questionnaire--hidden" data-step="5">
+                <h3 class="panel__title">Schedule &amp; Availability</h3>
+                <p class="panel__note">
+                  Select training frequency, then choose exact days.
+                </p>
+                <div
+                  class="panel__alert panel__alert--hidden"
+                  data-schedule-error
+                >
+                  Training days must match the selected weekly frequency.
+                </div>
+                <div class="grid-stack">
+                  <div class="grid-stack">
+                    <p class="panel__note">Training days per week.</p>
+                    <div class="tile-grid">
+                      <button
+                        class="tile"
+                        type="button"
+                        data-schedule-days="1"
+                      >
+                        1
+                      </button>
+                      <button
+                        class="tile"
+                        type="button"
+                        data-schedule-days="2"
+                      >
+                        2
+                      </button>
+                      <button
+                        class="tile"
+                        type="button"
+                        data-schedule-days="3"
+                      >
+                        3
+                      </button>
+                      <button
+                        class="tile"
+                        type="button"
+                        data-schedule-days="4"
+                      >
+                        4
+                      </button>
+                      <button
+                        class="tile"
+                        type="button"
+                        data-schedule-days="5"
+                      >
+                        5
+                      </button>
+                      <button
+                        class="tile"
+                        type="button"
+                        data-schedule-days="6"
+                      >
+                        6
+                      </button>
+                      <button
+                        class="tile"
+                        type="button"
+                        data-schedule-days="7"
+                      >
+                        7
+                      </button>
+                    </div>
+                  </div>
+                  <div class="grid-stack">
+                    <p class="panel__note">Training days of the week.</p>
+                    <div class="tile-grid" data-day-grid>
+                      <button
+                        class="tile"
+                        type="button"
+                        data-training-day="0"
+                      >
+                        Mon
+                      </button>
+                      <button
+                        class="tile"
+                        type="button"
+                        data-training-day="1"
+                      >
+                        Tue
+                      </button>
+                      <button
+                        class="tile"
+                        type="button"
+                        data-training-day="2"
+                      >
+                        Wed
+                      </button>
+                      <button
+                        class="tile"
+                        type="button"
+                        data-training-day="3"
+                      >
+                        Thu
+                      </button>
+                      <button
+                        class="tile"
+                        type="button"
+                        data-training-day="4"
+                      >
+                        Fri
+                      </button>
+                      <button
+                        class="tile"
+                        type="button"
+                        data-training-day="5"
+                      >
+                        Sat
+                      </button>
+                      <button
+                        class="tile"
+                        type="button"
+                        data-training-day="6"
+                      >
+                        Sun
+                      </button>
+                    </div>
+                  </div>
+                  <div class="grid-stack" data-split-section>
+                    <p class="panel__note">
+                      For five-day programs, select a split variant.
+                    </p>
+                    <div class="tile-grid">
+                      <button
+                        class="tile"
+                        type="button"
+                        data-split-variant="ppl_upper_lower"
+                      >
+                        PPL + Upper/Lower
+                      </button>
+                      <button
+                        class="tile"
+                        type="button"
+                        data-split-variant="ppl_push_pull"
+                      >
+                        PPL + Push/Pull
+                      </button>
+                    </div>
+                  </div>
+                </div>
+                <div class="questionnaire__actions">
+                  <button class="action" type="button" data-back>Back</button>
+                  <button
+                    class="action action--primary"
+                    type="button"
+                    data-next
+                    data-schedule-next
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid-stack questionnaire--hidden" data-step="6">
+                <h3 class="panel__title">Measurements</h3>
+                <p class="panel__note">Optional. Skip if unknown.</p>
+                <div class="grid-stack grid-stack--two">
+                  <label class="grid-stack">
+                    <span>Age</span>
+                    <input
+                      type="number"
+                      min="0"
+                      data-measurement="age"
+                      placeholder="Years"
+                    />
+                  </label>
+                  <label class="grid-stack">
+                    <span>Sex</span>
+                    <select data-measurement="sex">
+                      <option value="">Select</option>
+                      <option value="female">Female</option>
+                      <option value="male">Male</option>
+                      <option value="nonbinary">Non-binary</option>
+                      <option value="prefer_not_to_say">Prefer not to say</option>
+                    </select>
+                  </label>
+                  <label class="grid-stack">
+                    <span>Height</span>
+                    <input
+                      type="number"
+                      min="0"
+                      data-measurement="height"
+                      placeholder="Inches"
+                    />
+                  </label>
+                  <label class="grid-stack">
+                    <span>Weight</span>
+                    <input
+                      type="number"
+                      min="0"
+                      data-measurement="weight"
+                      placeholder="Pounds"
+                    />
+                  </label>
+                </div>
+                <div class="questionnaire__actions">
+                  <button class="action" type="button" data-back>Back</button>
+                  <button
+                    class="action"
+                    type="button"
+                    data-skip-measurements
+                  >
+                    Skip
+                  </button>
+                  <button class="action action--primary" type="button" data-next>
+                    Next
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid-stack questionnaire--hidden" data-step="7">
+                <h3 class="panel__title">Health &amp; Limitations</h3>
+                <p class="panel__note">Optional. Skip if not applicable.</p>
+                <div class="grid-stack">
+                  <label class="grid-stack">
+                    <span>Injuries or constraints</span>
+                    <textarea
+                      rows="3"
+                      data-injuries
+                      placeholder="Describe injuries, pain, or medical notes."
+                    ></textarea>
+                  </label>
+                  <label class="grid-stack">
+                    <span>Movements to avoid</span>
+                    <textarea
+                      rows="3"
+                      data-excluded
+                      placeholder="List exercises or patterns to avoid."
+                    ></textarea>
+                  </label>
+                </div>
+                <div class="questionnaire__actions">
+                  <button class="action" type="button" data-back>Back</button>
+                  <button class="action" type="button" data-skip-health>
+                    Skip
+                  </button>
+                  <button class="action action--primary" type="button" data-next>
+                    Next
+                  </button>
+                </div>
+              </div>
+
+              <div class="grid-stack questionnaire--hidden" data-step="8">
+                <h3 class="panel__title">Review &amp; Submit</h3>
+                <p class="panel__note">
+                  Verify every response. Edit any row before submitting.
+                </p>
+                <div class="panel__alert panel__alert--hidden" data-submit-status>
+                  Processing intake data...
+                </div>
+                <div class="review-list" data-review-list></div>
+                <div class="questionnaire__actions">
+                  <button class="action" type="button" data-back>Back</button>
+                  <button
+                    class="action action--primary"
+                    type="button"
+                    data-submit
+                  >
+                    Submit
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+        <section class="panel screen--hidden" data-screen-id="plan_summary"></section>
+        <section class="panel screen--hidden" data-screen-id="dashboard"></section>
         <section
           class="panel screen--hidden"
           data-screen-id="session_detail"
         ></section>
-        <section
-          class="panel screen--hidden"
-          data-screen-id="history"
-        ></section>
-        <section
-          class="panel screen--hidden"
-          data-screen-id="settings"
-        ></section>
+        <section class="panel screen--hidden" data-screen-id="history"></section>
+        <section class="panel screen--hidden" data-screen-id="settings"></section>
       </main>
     </div>
     <script type="module" src="js/app.js"></script>

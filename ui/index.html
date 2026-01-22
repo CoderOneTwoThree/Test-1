@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -8,106 +8,34 @@
   </head>
   <body>
     <div class="app">
-      <header class="app__header">
-        <h1>Phase 5 Brutalist Framework</h1>
-        <p>Rigid grid layout. High-contrast only. No softness.</p>
-      </header>
-      <aside class="app__sidebar">
-        <div class="panel">
-          <h2 class="panel__title">Progress</h2>
-          <ol class="progress-list">
-            <li class="progress-list__item" data-step-indicator="1">Equipment</li>
-            <li class="progress-list__item" data-step-indicator="2">Increment</li>
-            <li class="progress-list__item" data-step-indicator="3">Goal</li>
-            <li class="progress-list__item" data-step-indicator="4">Review</li>
-          </ol>
-        </div>
-        <div class="panel">
-          <h2 class="panel__title">Output Keys</h2>
-          <ul class="key-list">
-            <li>equipment_id</li>
-            <li>smallest_increment</li>
-            <li>fitness_goal</li>
-          </ul>
-        </div>
-      </aside>
       <main class="app__main">
-        <div data-screen-id="questionnaire">
-          <section class="panel questionnaire" data-step="1">
-            <h2 class="panel__title">Step 1 • Equipment Picker</h2>
-            <p class="panel__note">Select all that apply. Required.</p>
-            <div class="tile-grid" data-equipment-grid>
-              <button class="tile" type="button" data-equipment="barbell">Barbell</button>
-              <button class="tile" type="button" data-equipment="dumbbell">Dumbbell</button>
-              <button class="tile" type="button" data-equipment="kettlebell">Kettlebell</button>
-              <button class="tile" type="button" data-equipment="bodyweight">Bodyweight</button>
-              <button class="tile" type="button" data-equipment="bands">Bands</button>
-              <button class="tile" type="button" data-equipment="machines">Machines</button>
-            </div>
-            <div class="panel__alert panel__alert--hidden" data-equipment-error>
-              Required: choose at least one equipment tile.
-            </div>
-            <div class="questionnaire__actions">
-              <button type="button" class="action action--primary" data-next>Next</button>
-            </div>
-          </section>
-
-          <section class="panel questionnaire questionnaire--hidden" data-step="2">
-            <h2 class="panel__title">Step 2 • Increment Picker</h2>
-            <p class="panel__note">Choose the smallest load increment. Required.</p>
-            <div class="increment-grid">
-              <button class="increment" type="button" data-increment="1.25">1.25 kg</button>
-              <button class="increment" type="button" data-increment="2.5">2.5 kg</button>
-              <button class="increment" type="button" data-increment="5">5 kg</button>
-            </div>
-            <div class="panel__alert panel__alert--hidden" data-increment-error>
-              Required: select a smallest increment.
-            </div>
-            <div class="questionnaire__actions">
-              <button type="button" class="action" data-back>Back</button>
-              <button type="button" class="action action--primary" data-next>Next</button>
-            </div>
-          </section>
-
-          <section class="panel questionnaire questionnaire--hidden" data-step="3">
-            <h2 class="panel__title">Step 3 • Goal Picker</h2>
-            <p class="panel__note">Pick one primary goal. Required.</p>
-            <div class="goal-grid">
-              <button class="goal" type="button" data-goal="strength">Strength</button>
-              <button class="goal" type="button" data-goal="hypertrophy">Hypertrophy</button>
-              <button class="goal" type="button" data-goal="endurance">Endurance</button>
-            </div>
-            <div class="panel__alert panel__alert--hidden" data-goal-error>
-              Required: choose a primary goal.
-            </div>
-            <div class="questionnaire__actions">
-              <button type="button" class="action" data-back>Back</button>
-              <button type="button" class="action action--primary" data-next>Review</button>
-            </div>
-          </section>
-
-          <section class="panel questionnaire questionnaire--hidden" data-step="4">
-            <h2 class="panel__title">Step 4 • Review Output</h2>
-            <p class="panel__note">JSON output must match Phase 2 keys.</p>
-            <pre class="output" data-output>{}</pre>
-            <div class="questionnaire__actions">
-              <button type="button" class="action" data-back>Back</button>
-              <button type="button" class="action action--primary" data-submit>Submit</button>
-            </div>
-            <div class="panel__alert panel__alert--hidden" data-submit-status>
-              Payload sent to backend.
-            </div>
-          </section>
-        </div>
+        <section class="panel" data-screen-id="welcome"></section>
+        <section
+          class="panel screen--hidden"
+          data-screen-id="questionnaire"
+        ></section>
+        <section
+          class="panel screen--hidden"
+          data-screen-id="plan_summary"
+        ></section>
+        <section
+          class="panel screen--hidden"
+          data-screen-id="dashboard"
+        ></section>
+        <section
+          class="panel screen--hidden"
+          data-screen-id="session_detail"
+        ></section>
+        <section
+          class="panel screen--hidden"
+          data-screen-id="history"
+        ></section>
+        <section
+          class="panel screen--hidden"
+          data-screen-id="settings"
+        ></section>
       </main>
-      <footer class="app__footer">
-        <span>Plan Generator Questionnaire • Brutalist • No softness</span>
-      </footer>
     </div>
-    <script type="module">
-      import { initQuestionnaire } from "./controllers/questionnaire.js";
-
-      initQuestionnaire();
-    </script>
+    <script type="module" src="js/app.js"></script>
   </body>
 </html>

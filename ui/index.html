@@ -29,7 +29,17 @@
         </nav>
       </aside>
       <main class="app__main">
-        <section class="panel" data-screen-id="welcome"></section>
+        <section class="panel" data-screen-id="welcome">
+          <h2 class="panel__title">Welcome</h2>
+          <p class="panel__note">
+            Start a new plan by completing the intake questionnaire.
+          </p>
+          <div class="questionnaire__actions">
+            <button class="action action--primary" type="button" data-start-questionnaire>
+              Start Intake
+            </button>
+          </div>
+        </section>
         <section class="panel questionnaire screen--hidden" data-screen-id="questionnaire">
           <h2 class="panel__title">Intake Questionnaire</h2>
           <div class="grid-stack grid-stack--two">

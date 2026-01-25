@@ -24,6 +24,9 @@ class PlanSummaryController {
     }
     this.bindEvents();
     this.loadPlan();
+    window.addEventListener("plan:created", () => {
+      this.loadPlan();
+    });
   }
 
   bindEvents() {

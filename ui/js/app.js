@@ -28,6 +28,9 @@ const initApp = () => {
   Store.init();
   const viewManager = new ViewManager();
   const navButtons = document.querySelectorAll("[data-nav-target]");
+  const startQuestionnaire = document.querySelector(
+    "[data-start-questionnaire]",
+  );
 
   navButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -38,6 +41,12 @@ const initApp = () => {
     });
   });
 
+  if (startQuestionnaire) {
+    startQuestionnaire.addEventListener("click", () => {
+      viewManager.show("questionnaire", { step: 1 });
+    });
+  }
+
   registerController("questionnaire", QuestionnaireController);
   registerController("plan_summary", PlanSummaryController);
   registerController("dashboard", DashboardController);
@@ -45,7 +54,16 @@ const initApp = () => {
   registerController("history", HistoryController);
 
   initControllers({ store: Store, viewManager });
-  viewManager.show("welcome");
+  const { currentPlan, pendingPlanId } = Store.getState();
+  const hasPlan =
+    Boolean(Store.getActivePlanId?.()) ||
+    Boolean(currentPlan?.id) ||
+    Boolean(pendingPlanId);
+  if (!hasPlan) {
+    viewManager.show("questionnaire", { step: 1 });
+  } else {
+    viewManager.show("welcome");
+  }
 };
 
 initApp();

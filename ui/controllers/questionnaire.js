@@ -404,6 +404,11 @@ class QuestionnaireController {
       }
       this.setSubmitStatus("Intake submitted. Plan synchronized.", false);
       this.viewManager.show("plan_summary");
+      if (planId) {
+        window.dispatchEvent(
+          new CustomEvent("plan:created", { detail: { planId } }),
+        );
+      }
       this.store.resetOnboarding();
     } catch (error) {
       this.setSubmitStatus(

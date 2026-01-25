@@ -97,6 +97,13 @@ def create_app(db_path: pathlib.Path) -> Flask:
     @app.post("/workouts/sessions")
     def workouts_start_session() -> Any:
         payload = request.get_json(silent=True) or {}
+        if payload.get("set_logs"):
+            db_path_local = app.config["DB_PATH"]
+            try:
+                session_id = create_session(db_path_local, payload)
+            except Exception as exc:
+                return _error(str(exc), 400)
+            return jsonify({"session_id": session_id})
         payload.setdefault("id", int(time.time()))
         return jsonify(payload)
 

@@ -235,39 +235,17 @@ class DashboardController {
       this.setStatus("Session initialization blocked: plan missing.", true);
       return;
     }
-    const payload = {
+    const sessionData = {
+      id: Date.now(),
       plan_id: planId,
       day_index: this.currentWorkout.day_index ?? this.currentDayIndex,
       started_at: new Date().toISOString(),
     };
 
-    try {
-      const response = await fetch("/workouts/sessions", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-      if (!response.ok) {
-        throw new Error("Backend unreachable");
-      }
-      let sessionData = null;
-      try {
-        sessionData = await response.json();
-      } catch (error) {
-        sessionData = { ...payload, id: null };
-      }
-      this.store.initializeSession(sessionData);
-      this.setStatus("Session initialized.", false);
-      window.dispatchEvent(new CustomEvent("session:started"));
-      this.viewManager.show("session_detail");
-    } catch (error) {
-      this.setStatus(
-        "Session Initialization Failed: Backend unreachable.",
-        true,
-      );
-    }
+    this.store.initializeSession(sessionData);
+    this.setStatus("Session initialized.", false);
+    window.dispatchEvent(new CustomEvent("session:started"));
+    this.viewManager.show("session_detail");
   }
 
   async openSwapModal(dayIndex, sequence) {

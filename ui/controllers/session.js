@@ -560,7 +560,7 @@ class SessionController {
         this.saveButton.disabled = true;
       }
       this.setStatus("Payload sent to backend.", false);
-      const response = await fetch("/workouts", {
+      const response = await fetch("/workouts/sessions", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

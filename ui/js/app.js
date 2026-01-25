@@ -59,8 +59,8 @@ const initApp = () => {
     Boolean(Store.getActivePlanId?.()) ||
     Boolean(currentPlan?.id) ||
     Boolean(pendingPlanId);
-  if (!hasPlan) {
-    viewManager.show("questionnaire", { step: 1 });
+  if (hasPlan) {
+    viewManager.show("dashboard");
   } else {
     viewManager.show("welcome");
   }

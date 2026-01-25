@@ -34,34 +34,45 @@
 ## Prioritized Task List (single truth)
 
 ### P0 — MVP Blockers
-1) **Plan Retrieval Payload Must Match UI Needs**  
+1) **Plan Retrieval Payload Must Match UI Needs**  \[DONE]  
    Severity: Blocker | Area: Backend  
    Rationale: Plan summary + dashboard require full plan data with workouts/exercises.  
    Files: `server/app.py` (`_fetch_plan_payload`), `queries/*`.
 
-2) **History + Progression Endpoints Verified End‑to‑End**  
+2) **History + Progression Endpoints Verified End‑to‑End**  \[IN PROGRESS]  
    Severity: Blocker | Area: Backend/UI  
    Rationale: Session logging flow depends on recommendations; history depends on session logs.  
    Files: `server/app.py`, `domain/progression/engine.py`, `queries/exercise_history.py`.
 
 ### P1 — High Priority (post‑blockers)
-3) **Manual QA Checklist (UI‑based testing)**  
+3) **Manual QA Checklist (UI‑based testing)**  \[NOT STARTED]  
    Severity: High | Area: Testing  
    Rationale: You require testing through the app.  
    Files: new `QA_CHECKLIST.md`.
 
-4) **Basic Validation & Error Messaging for Core Flow**  
+4) **Basic Validation & Error Messaging for Core Flow**  \[NOT STARTED]  
    Severity: High | Area: UI  
    Rationale: Intake, plan generation, session logging must fail safely.  
    Files: `ui/controllers/*`.
 
 ### P2 — Nice‑to‑Have / Post‑MVP
-5) **Repository Pattern Refactor (partial or full)**  
+5) **Repository Pattern Refactor (partial or full)**  \[NOT STARTED]  
    Severity: Low | Area: Backend  
    Rationale: Valuable for long‑term testability but not required for MVP.
 
-6) **UX Polish (questionnaire summary storage, welcome refinements)**  
+6) **UX Polish (questionnaire summary storage, welcome refinements)**  \[NOT STARTED]  
    Severity: Low | Area: UI
+
+---
+
+## Completed Work (since audit creation)
+
+- Added minimal API server (`server/app.py`) and wired core routes.
+- Added DB init/seed script (`scripts/init_db.py`).
+- Updated questionnaire to capture session duration + focus areas and use them in plan generation.
+- Added plan payload assembly for `/plans/{id}`.
+- Aligned session start/save flow.
+- Added README quickstart and deprecated mock server warning.
 
 ---
 

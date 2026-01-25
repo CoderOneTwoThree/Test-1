@@ -37,6 +37,7 @@
 - What types of training do you dislike or want to avoid?
 - Do you prefer full-body or split routines?
 - Do you want cardio included? If yes, what kind?
+- Do you want extra focus on any areas (arms, shoulders, chest, back, legs, core)?
 
 ## Measurements & Constraints
 - What is your age?

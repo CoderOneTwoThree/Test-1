@@ -285,6 +285,8 @@ def main():
         return MockHandler(*handler_args, directory=ui_dir, state=state, **handler_kwargs)
 
     server = ThreadingHTTPServer(("127.0.0.1", args.port), handler)
+    print("WARNING: mock_server is deprecated and does NOT reflect real plan logic.")
+    print("Use server/app.py for MVP validation. This mock is for quick UI smoke tests only.")
     print(f"Serving UI + mock API at http://127.0.0.1:{args.port}")
     server.serve_forever()
 

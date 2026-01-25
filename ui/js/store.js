@@ -21,6 +21,8 @@ const state = {
     schedule_days: null,
     training_days_of_week: [],
     split_variant: null,
+    session_duration_minutes: null,
+    focus_areas: [],
     injuries_constraints: null,
     excluded_patterns: null,
     age: null,
@@ -149,6 +151,14 @@ const setOnboardingData = (data) => {
       ? data.training_days_of_week.map((day) => Number(day))
       : [],
     split_variant: data?.split_variant ?? null,
+    session_duration_minutes:
+      data?.session_duration_minutes === null ||
+      data?.session_duration_minutes === undefined
+        ? null
+        : Number(data.session_duration_minutes),
+    focus_areas: Array.isArray(data?.focus_areas)
+      ? data.focus_areas.map((area) => String(area))
+      : [],
     injuries_constraints: data?.injuries_constraints ?? null,
     excluded_patterns: data?.excluded_patterns ?? null,
     age: data?.age === null || data?.age === undefined ? null : Number(data.age),
@@ -203,6 +213,8 @@ const resetOnboarding = () => {
     schedule_days: null,
     training_days_of_week: [],
     split_variant: null,
+    session_duration_minutes: null,
+    focus_areas: [],
     injuries_constraints: null,
     excluded_patterns: null,
     age: null,

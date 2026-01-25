@@ -54,12 +54,19 @@ def _parse_training_days(value: str | None) -> list[int] | None:
         return None
     return [int(day) for day in days]
 
+def _parse_focus_areas(value: str | None) -> list[str] | None:
+    if not value:
+        return None
+    areas = [item.strip() for item in value.split(",") if item.strip()]
+    return areas or None
+
 
 def fetch_questionnaire_response(db: DbConnection, questionnaire_id: int) -> dict[str, Any]:
     cursor = db.execute(
         """
         SELECT id, user_id, goals, experience_level, schedule_days, equipment_available,
-               injuries_constraints, excluded_patterns, training_days_of_week, split_variant
+               session_duration_minutes, injuries_constraints, excluded_patterns,
+               training_days_of_week, focus_areas, split_variant
         FROM questionnaire_responses
         WHERE id = ?
         """,
@@ -75,10 +82,12 @@ def fetch_questionnaire_response(db: DbConnection, questionnaire_id: int) -> dic
         "experience_level": row[3],
         "schedule_days": row[4],
         "equipment_available": row[5],
-        "injuries_constraints": row[6],
-        "excluded_patterns": row[7],
-        "training_days_of_week": _parse_training_days(row[8]),
-        "split_variant": row[9],
+        "session_duration_minutes": row[6],
+        "injuries_constraints": row[7],
+        "excluded_patterns": row[8],
+        "training_days_of_week": _parse_training_days(row[9]),
+        "focus_areas": _parse_focus_areas(row[10]),
+        "split_variant": row[11],
     }
 
 

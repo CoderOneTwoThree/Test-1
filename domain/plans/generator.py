@@ -31,10 +31,10 @@ EQUIPMENT_ALLOWED = {
 
 SESSION_PATTERNS = {
     "full_body": [
+        "horizontal pull",
+        "horizontal push",
         "squat",
         "hinge",
-        "horizontal push",
-        "horizontal pull",
         "vertical push",
         "vertical pull",
         "core",
@@ -52,11 +52,46 @@ SESSION_PATTERNS = {
     "legs": ["squat", "hinge", "single-leg", "core"],
 }
 
+ACCESSORY_MUSCLES_BY_SESSION = {
+    "push": {"chest", "shoulders", "triceps"},
+    "pull": {"back", "lats", "biceps", "grip"},
+    "legs": {"quadriceps", "hamstrings", "glutes", "calves", "adductors", "hip flexors"},
+    "upper": {"chest", "shoulders", "triceps", "back", "lats", "biceps"},
+    "lower": {"quadriceps", "hamstrings", "glutes", "calves", "adductors", "hip flexors"},
+    "full_body": {
+        "chest",
+        "shoulders",
+        "triceps",
+        "back",
+        "lats",
+        "biceps",
+        "quadriceps",
+        "hamstrings",
+        "glutes",
+        "calves",
+        "adductors",
+        "hip flexors",
+        "core",
+        "abs",
+        "obliques",
+    },
+}
+
+FOCUS_AREA_MUSCLES = {
+    "arms": {"biceps", "triceps"},
+    "shoulders": {"shoulders"},
+    "chest": {"chest"},
+    "back": {"back", "lats"},
+    "legs": {"quadriceps", "hamstrings", "glutes", "calves", "adductors", "hip flexors"},
+    "core": {"core", "abs", "obliques"},
+}
+
 
 @dataclass(frozen=True)
 class PlanDay:
     day_index: int
     session_type: str
+    patterns: list[str]
     exercises: list[ExerciseRow]
 
 
@@ -108,6 +143,8 @@ class PlanGenerator:
                 week_structure,
                 exercises_by_pattern,
                 questionnaire["experience_level"],
+                questionnaire.get("session_duration_minutes"),
+                questionnaire.get("focus_areas") or [],
             )
             self._audit_plan(
                 plan_days,
@@ -199,6 +236,8 @@ class PlanGenerator:
             for pattern in SESSION_PATTERNS.get(session_type, []):
                 if pattern not in patterns:
                     patterns.append(pattern)
+        if "accessory" not in patterns:
+            patterns.append("accessory")
         return patterns
 
     def _group_by_pattern(
@@ -218,10 +257,16 @@ class PlanGenerator:
         week_structure: list[str],
         exercises_by_pattern: dict[str, list[ExerciseRow]],
         experience_level: str,
+        session_duration_minutes: int | None,
+        focus_areas: list[str],
     ) -> list[PlanDay]:
         plan_days: list[PlanDay] = []
         for day_index, session_type in zip(day_indices, week_structure, strict=True):
-            patterns = SESSION_PATTERNS.get(session_type, [])
+            patterns = self._select_patterns_for_session(
+                session_type,
+                session_duration_minutes,
+                experience_level,
+            )
             accessory_count: dict[str, int] = {}
             selected_exercises: list[ExerciseRow] = []
             for pattern_index, pattern in enumerate(patterns):
@@ -244,14 +289,120 @@ class PlanGenerator:
                         experience_level,
                     )
                 selected_exercises.append(selected)
+            accessories = self._select_accessories(
+                selected_exercises,
+                exercises_by_pattern.get("accessory", []),
+                session_type,
+                session_duration_minutes,
+                experience_level,
+                focus_areas,
+            )
+            selected_exercises.extend(accessories)
             plan_days.append(
                 PlanDay(
                     day_index=day_index,
                     session_type=session_type,
+                    patterns=patterns,
                     exercises=selected_exercises,
                 )
             )
         return plan_days
+
+    def _select_patterns_for_session(
+        self,
+        session_type: str,
+        session_duration_minutes: int | None,
+        experience_level: str,
+    ) -> list[str]:
+        patterns = SESSION_PATTERNS.get(session_type, [])
+        budget = self._session_exercise_budget(
+            session_duration_minutes, experience_level
+        )
+        if not patterns:
+            return []
+        if budget >= len(patterns):
+            return list(patterns)
+        return list(patterns)[:budget]
+
+    def _session_exercise_budget(
+        self, session_duration_minutes: int | None, experience_level: str
+    ) -> int:
+        if session_duration_minutes is None:
+            if experience_level == "beginner":
+                return 4
+            if experience_level == "intermediate":
+                return 5
+            return 6
+        if session_duration_minutes <= 30:
+            return 3
+        if session_duration_minutes <= 45:
+            return 4
+        if session_duration_minutes <= 60:
+            return 5
+        if session_duration_minutes <= 75:
+            return 6
+        return 7
+
+    def _select_accessories(
+        self,
+        selected_exercises: list[ExerciseRow],
+        accessory_pool: list[ExerciseRow],
+        session_type: str,
+        session_duration_minutes: int | None,
+        experience_level: str,
+        focus_areas: list[str],
+    ) -> list[ExerciseRow]:
+        if not accessory_pool:
+            return []
+        budget = self._session_exercise_budget(
+            session_duration_minutes, experience_level
+        )
+        slots = budget - len(selected_exercises)
+        if slots <= 0:
+            return []
+        if experience_level == "beginner":
+            slots = min(slots, 1)
+        elif experience_level == "intermediate":
+            slots = min(slots, 2)
+        else:
+            slots = min(slots, 3)
+
+        selected_ids = {exercise.id for exercise in selected_exercises}
+        focus_muscles = self._focus_muscle_set(focus_areas)
+        session_muscles = ACCESSORY_MUSCLES_BY_SESSION.get(session_type, set())
+        primary_targets = focus_muscles or session_muscles
+
+        candidates = [
+            exercise
+            for exercise in accessory_pool
+            if exercise.id not in selected_ids
+            and self._targets_muscles(exercise, primary_targets)
+        ]
+        if focus_muscles:
+            fallback = [
+                exercise
+                for exercise in accessory_pool
+                if exercise.id not in selected_ids
+                and exercise not in candidates
+                and self._targets_muscles(exercise, session_muscles)
+            ]
+        else:
+            fallback = []
+
+        ordered = sorted(candidates + fallback, key=lambda entry: entry.name)
+        return ordered[:slots]
+
+    def _focus_muscle_set(self, focus_areas: list[str]) -> set[str]:
+        muscles: set[str] = set()
+        for area in focus_areas:
+            muscles.update(FOCUS_AREA_MUSCLES.get(area, set()))
+        return muscles
+
+    def _targets_muscles(self, exercise: ExerciseRow, muscles: set[str]) -> bool:
+        if not muscles:
+            return False
+        exercise_muscles = self._normalize_muscles(exercise.primary_muscle)
+        return bool(muscles.intersection(exercise_muscles))
 
     def _build_five_day_split(
         self, split: str, split_variant: str | None
@@ -410,8 +561,8 @@ class PlanGenerator:
         experience_level: str,
     ) -> None:
         for day in plan_days:
-            patterns = SESSION_PATTERNS.get(day.session_type, [])
-            if len(patterns) != len(day.exercises):
+            patterns = day.patterns
+            if len(patterns) > len(day.exercises):
                 raise ValueError("PLAN_SELECTION_MISMATCH")
             accessory_count: dict[str, int] = {}
             for pattern, exercise in zip(patterns, day.exercises):
@@ -429,6 +580,11 @@ class PlanGenerator:
                     for count in accessory_count.values()
                 ):
                     raise ValueError("PLAN_ACCESSORY_LIMIT")
+            for exercise in day.exercises[len(patterns) :]:
+                if exercise.equipment_id not in allowed_equipment_ids:
+                    raise ValueError("PLAN_EQUIPMENT_MISMATCH")
+                if exercise.category.strip().lower() != "accessory":
+                    raise ValueError("PLAN_ACCESSORY_MISMATCH")
 
     def _resolve_starting_weight(
         self,

@@ -12,6 +12,7 @@ REQUIRED_FIELDS = {
     "smallest_increment",
 }
 SPLIT_VARIANTS = {"ppl_upper_lower", "ppl_push_pull"}
+FOCUS_AREAS = {"arms", "shoulders", "chest", "back", "legs", "core"}
 
 
 def _ensure_snake_case(value: str, field: str) -> None:
@@ -40,6 +41,27 @@ def _normalize_training_days(
     return sorted(normalized)
 
 
+def _normalize_focus_areas(value: Any) -> list[str] | None:
+    if value is None:
+        return None
+    if isinstance(value, str):
+        raw = [item.strip() for item in value.split(",") if item.strip()]
+    elif isinstance(value, list):
+        raw = [str(item).strip() for item in value if str(item).strip()]
+    else:
+        raise ValueError("focus_areas must be a list or comma-separated string")
+    if not raw:
+        return None
+    normalized: list[str] = []
+    for item in raw:
+        _ensure_snake_case(item, "focus_areas")
+        if item not in FOCUS_AREAS:
+            raise ValueError("focus_areas must be arms, shoulders, chest, back, legs, or core")
+        if item not in normalized:
+            normalized.append(item)
+    return normalized
+
+
 def _normalize_payload(payload: dict[str, Any]) -> dict[str, Any]:
     missing = REQUIRED_FIELDS - payload.keys()
     if "equipment_available" in missing:
@@ -58,6 +80,12 @@ def _normalize_payload(payload: dict[str, Any]) -> dict[str, Any]:
         raise ValueError("schedule_days must be 7 or fewer")
     if payload["smallest_increment"] <= 0:
         raise ValueError("smallest_increment must be positive")
+    session_duration = payload.get("session_duration_minutes")
+    if session_duration is not None:
+        if session_duration <= 0:
+            raise ValueError("session_duration_minutes must be positive")
+        if session_duration > 240:
+            raise ValueError("session_duration_minutes must be 240 or fewer")
     training_days = _normalize_training_days(
         payload.get("training_days_of_week"), schedule_days
     )
@@ -72,11 +100,14 @@ def _normalize_payload(payload: dict[str, Any]) -> dict[str, Any]:
         _ensure_snake_case(split_variant, "split_variant")
         if split_variant not in SPLIT_VARIANTS:
             raise ValueError("split_variant must be ppl_upper_lower or ppl_push_pull")
+    focus_areas = _normalize_focus_areas(payload.get("focus_areas"))
     return {
         **payload,
         "schedule_days": schedule_days,
         "training_days_of_week": training_days,
         "split_variant": split_variant,
+        "session_duration_minutes": session_duration,
+        "focus_areas": focus_areas,
     }
 
 
@@ -93,8 +124,9 @@ def create_questionnaire(db_path: str, payload: dict[str, Any]) -> int:
                 """
                 INSERT INTO questionnaire_responses
                     (user_id, goals, experience_level, schedule_days, equipment_available,
-                     injuries_constraints, excluded_patterns, training_days_of_week, split_variant)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                     session_duration_minutes, injuries_constraints, excluded_patterns,
+                     training_days_of_week, focus_areas, split_variant)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
                 (
                     normalized["user_id"],
@@ -102,10 +134,14 @@ def create_questionnaire(db_path: str, payload: dict[str, Any]) -> int:
                     normalized["experience_level"],
                     normalized["schedule_days"],
                     normalized["equipment_available"],
+                    normalized.get("session_duration_minutes"),
                     normalized.get("injuries_constraints"),
                     normalized.get("excluded_patterns"),
                     ",".join(str(day) for day in normalized["training_days_of_week"])
                     if normalized["training_days_of_week"]
+                    else None,
+                    ",".join(normalized["focus_areas"])
+                    if normalized.get("focus_areas")
                     else None,
                     normalized.get("split_variant"),
                 ),

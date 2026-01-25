@@ -47,9 +47,11 @@ CREATE TABLE IF NOT EXISTS questionnaire_responses (
     experience_level TEXT NOT NULL,
     schedule_days INTEGER NOT NULL,
     equipment_available TEXT NOT NULL,
+    session_duration_minutes INTEGER,
     injuries_constraints TEXT,
     excluded_patterns TEXT,
     training_days_of_week TEXT,
+    focus_areas TEXT,
     split_variant TEXT
 );
 

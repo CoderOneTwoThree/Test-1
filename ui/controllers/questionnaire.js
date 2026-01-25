@@ -22,6 +22,9 @@ class QuestionnaireController {
     this.scheduleButtons = Array.from(
       document.querySelectorAll("[data-schedule-days]"),
     );
+    this.durationButtons = Array.from(
+      document.querySelectorAll("[data-session-duration]"),
+    );
     this.trainingDayButtons = Array.from(
       document.querySelectorAll("[data-training-day]"),
     );
@@ -34,6 +37,9 @@ class QuestionnaireController {
     );
     this.injuriesInput = document.querySelector("[data-injuries]");
     this.excludedInput = document.querySelector("[data-excluded]");
+    this.focusButtons = Array.from(
+      document.querySelectorAll("[data-focus-area]"),
+    );
     this.reviewList = document.querySelector("[data-review-list]");
     this.outputPanel = document.querySelector("[data-output]");
     this.equipmentError = document.querySelector("[data-equipment-error]");
@@ -116,6 +122,20 @@ class QuestionnaireController {
       });
     });
 
+    this.durationButtons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const value = Number(button.dataset.sessionDuration);
+        const { onboardingData } = this.store.getState();
+        const nextValue =
+          Number(onboardingData.session_duration_minutes) === value ? null : value;
+        this.store.updateOnboardingData({
+          session_duration_minutes: nextValue,
+        });
+        this.syncSelections();
+        this.updateOutput();
+      });
+    });
+
     this.trainingDayButtons.forEach((button) => {
       button.addEventListener("click", () => {
         const { onboardingData } = this.store.getState();
@@ -178,6 +198,29 @@ class QuestionnaireController {
       });
     }
 
+    if (this.focusButtons.length) {
+      this.focusButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const value = button.dataset.focusArea;
+          if (!value) {
+            return;
+          }
+          const { onboardingData } = this.store.getState();
+          const selected = new Set(onboardingData.focus_areas);
+          if (selected.has(value)) {
+            selected.delete(value);
+          } else {
+            selected.add(value);
+          }
+          this.store.updateOnboardingData({
+            focus_areas: Array.from(selected),
+          });
+          this.syncSelections();
+          this.updateOutput();
+        });
+      });
+    }
+
     document.addEventListener("click", (event) => {
       if (event.target.matches("[data-next]")) {
         if (this.validateStep()) {
@@ -207,6 +250,7 @@ class QuestionnaireController {
         this.store.updateOnboardingData({
           injuries_constraints: null,
           excluded_patterns: null,
+          focus_areas: [],
         });
         this.syncSelections();
         this.store.setStepComplete(this.currentStep);
@@ -362,6 +406,8 @@ class QuestionnaireController {
       schedule_days: Number(onboardingData.schedule_days),
       training_days_of_week: onboardingData.training_days_of_week,
       split_variant: onboardingData.split_variant,
+      session_duration_minutes: onboardingData.session_duration_minutes,
+      focus_areas: onboardingData.focus_areas,
       injuries_constraints: onboardingData.injuries_constraints,
       excluded_patterns: onboardingData.excluded_patterns,
       age: onboardingData.age,
@@ -461,6 +507,14 @@ class QuestionnaireController {
       );
     });
 
+    this.durationButtons.forEach((button) => {
+      button.classList.toggle(
+        "tile--selected",
+        Number(button.dataset.sessionDuration) ===
+          Number(onboardingData.session_duration_minutes),
+      );
+    });
+
     this.trainingDayButtons.forEach((button) => {
       const dayValue = Number(button.dataset.trainingDay);
       button.classList.toggle(
@@ -499,6 +553,16 @@ class QuestionnaireController {
 
     if (this.excludedInput) {
       this.excludedInput.value = onboardingData.excluded_patterns ?? "";
+    }
+
+    if (this.focusButtons.length) {
+      this.focusButtons.forEach((button) => {
+        const value = button.dataset.focusArea;
+        button.classList.toggle(
+          "tile--selected",
+          onboardingData.focus_areas.includes(value),
+        );
+      });
     }
 
     this.updateScheduleActionState();
@@ -581,6 +645,13 @@ class QuestionnaireController {
         step: 5,
       },
       {
+        label: "Session Length",
+        value: onboardingData.session_duration_minutes
+          ? `${onboardingData.session_duration_minutes} min`
+          : null,
+        step: 5,
+      },
+      {
         label: "Days of Week",
         value: dayNames,
         step: 5,
@@ -614,6 +685,13 @@ class QuestionnaireController {
       {
         label: "Movements to Avoid",
         value: onboardingData.excluded_patterns,
+        step: 7,
+      },
+      {
+        label: "Focus Areas",
+        value: Array.isArray(onboardingData.focus_areas)
+          ? onboardingData.focus_areas.join(", ")
+          : null,
         step: 7,
       },
     ];

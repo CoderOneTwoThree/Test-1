@@ -261,6 +261,7 @@ class PlanGenerator:
         focus_areas: list[str],
     ) -> list[PlanDay]:
         plan_days: list[PlanDay] = []
+        pattern_usage: dict[str, int] = {}
         for day_index, session_type in zip(day_indices, week_structure, strict=True):
             patterns = self._select_patterns_for_session(
                 session_type,
@@ -273,11 +274,13 @@ class PlanGenerator:
                 pool = exercises_by_pattern.get(pattern, [])
                 if not pool:
                     raise ValueError("MINIMUM_LIBRARY_REQUIREMENTS")
+                occurrence_index = pattern_usage.get(pattern, 0)
                 selected = self._select_exercise_for_pattern(
                     pool,
                     day_index=day_index,
                     pattern_index=pattern_index,
                     experience_level=experience_level,
+                    occurrence_index=occurrence_index,
                 )
                 if experience_level == "beginner" and pattern != "core":
                     selected = self._apply_beginner_accessory_limit(
@@ -287,7 +290,9 @@ class PlanGenerator:
                         pattern_index,
                         accessory_count,
                         experience_level,
+                        occurrence_index,
                     )
+                pattern_usage[pattern] = occurrence_index + 1
                 selected_exercises.append(selected)
             accessories = self._select_accessories(
                 selected_exercises,
@@ -452,7 +457,7 @@ class PlanGenerator:
             raise ValueError("TRAINING_DAYS_OUT_OF_RANGE")
         if len(set(training_days)) != len(training_days):
             raise ValueError("TRAINING_DAYS_DUPLICATE")
-        if weekly_frequency >= 6:
+        if weekly_frequency >= 4:
             return
         max_consecutive = self._max_consecutive_training_days(training_days)
         if max_consecutive > 2:
@@ -476,6 +481,7 @@ class PlanGenerator:
         day_index: int,
         pattern_index: int,
         experience_level: str,
+        occurrence_index: int = 0,
     ) -> ExerciseRow:
         compound = [ex for ex in pool if ex.category.strip().lower() == "compound"]
         accessory = [ex for ex in pool if ex.category.strip().lower() == "accessory"]
@@ -487,7 +493,7 @@ class PlanGenerator:
             raise ValueError("UNKNOWN_EXPERIENCE_LEVEL")
         if not candidates:
             raise ValueError("MINIMUM_LIBRARY_REQUIREMENTS")
-        return candidates[0]
+        return candidates[occurrence_index % len(candidates)]
 
     def _apply_beginner_accessory_limit(
         self,
@@ -497,6 +503,7 @@ class PlanGenerator:
         pattern_index: int,
         accessory_count: dict[str, int],
         experience_level: str,
+        occurrence_index: int = 0,
     ) -> ExerciseRow:
         if selected.category.strip().lower() != "accessory":
             return selected
@@ -516,6 +523,7 @@ class PlanGenerator:
                 day_index=day_index,
                 pattern_index=pattern_index,
                 experience_level=experience_level,
+                occurrence_index=occurrence_index,
             )
         for muscle in muscle_groups:
             accessory_count[muscle] = accessory_count.get(muscle, 0) + 1

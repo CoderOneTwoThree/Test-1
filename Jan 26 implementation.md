@@ -45,6 +45,7 @@ Steps: Create a new questionnaire flow and confirm there are no existing plans, 
 Expected results: The app loads without errors and shows empty/initial states before any plan generation.
 Evidence to capture: Screenshot or note of the empty plan/session state and the running server terminal.
 Test to validate: Manual UI smoke check (load home, navigate questionnaire, verify empty history).
+Manual UI required: This item cannot be confirmed without running the UI.
 
 Task B
 Name: 5-Day Split check
@@ -54,6 +55,7 @@ Steps: Complete the questionnaire with 5 days/week, generate the plan, and inspe
 Expected results: UI exposes a split variant selector with options PPL+UL vs PPL+PP for 5-day plans.
 Evidence to capture: Screenshot of the split variant selector and generated 5-day plan summary.
 Test to validate: Manual UI verification of split selector presence for 5-day frequency.
+Manual UI required: This item cannot be confirmed without running the UI.
 
 Task C
 Name: Rest Days check
@@ -63,6 +65,7 @@ Steps: Select consecutive training days (e.g., M/T/W/T/F) and attempt to generat
 Expected results: Plan generation succeeds without validation errors for consecutive days in split routines.
 Evidence to capture: Screenshot or note showing the selected days and successful plan generation.
 Test to validate: Manual UI verification that no error is shown and plan is created.
+Manual UI required: This item cannot be confirmed without running the UI.
 
 Task D
 Name: Swap persistence check
@@ -72,6 +75,7 @@ Steps: Perform a swap, save it, reload or navigate away and back to the Dashboar
 Expected results: The swapped exercise persists and the starting weight is conservative and rounded to the smallest increment.
 Evidence to capture: Before/after screenshots of the exercise swap and the rounded starting weight.
 Test to validate: Manual UI verification after reload that the swap persists with rounded weight.
+Manual UI required: This item cannot be confirmed without running the UI.
 
 Task E
 Name: Form Audit deload check
@@ -81,6 +85,7 @@ Steps: Log a session with “Form Audit” checked, save the session, then open 
 Expected results: The next recommendation applies a 10% deload for the affected lift.
 Evidence to capture: Screenshot or note showing the logged form audit and the next session’s reduced target weight.
 Test to validate: Manual UI verification that the next recommendation is reduced by 10%.
+Manual UI required: This item cannot be confirmed without running the UI.
 
 ### Priority 1.5: Logic changes (Logic)
 - [ ] **Full workout generation logic audit:** Conduct a full audit by both Codex and the user of how the app actually handles workout generation. 

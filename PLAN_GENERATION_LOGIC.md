@@ -22,5 +22,5 @@
 - Weekly_frequency=5 -> Plan_structure=push_pull_legs_upper_lower_or_push_pull_legs_push_pull.
 - Weekly_frequency=6 -> Plan_structure=push_pull_legs_repeat.
 - Weekly_frequency>=7 -> Plan_structure=push_pull_legs_repeat_plus_optional_full_body_or_recovery_day.
-- Rest Days: Intercalate rest days between sessions to maximize recovery. Avoid >2 consecutive training days unless Frequency >= 6.
-- Exercise variation is currently manual via swaps; automatic rotation is not enabled.
+- Rest Days: Avoid >2 consecutive training days for Full Body splits (Frequency <= 3). For split routines (Frequency >= 4), consecutive training days are permitted.
+- Exercise variation: Automatic rotation is enabled. If a pattern appears multiple times in a week, the generator cycles through available exercises (sorted by name).

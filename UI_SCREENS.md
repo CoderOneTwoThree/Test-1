@@ -35,7 +35,7 @@
 ## 5) Session Detail / Execution
 - **Primary purpose:** Guide the user through the current session or task sequence.
 - **Key data shown:** Session steps, exercise/task list, timers or counters (if applicable), completion status.
-- **Primary user actions:** Start/stop, mark steps complete, log notes or feedback.
+- **Primary user actions:** Start/stop, mark steps complete, log notes or feedback, log a skipped session when needed.
 - **Navigation in/out:**
   - **In:** From Dashboard / Today.
   - **Out:** Dashboard / Today (on completion); Progress (optional review).

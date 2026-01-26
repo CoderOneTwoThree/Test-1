@@ -68,6 +68,10 @@ def validate_session(
     if not isinstance(session.manual_audit_flag, bool):
         raise ValueError("manual_audit_flag must be boolean")
     set_logs = list(set_logs)
+    if session.completion_status == "skipped":
+        if set_logs:
+            raise ValueError("set_logs must be empty for skipped sessions")
+        return
     if not set_logs:
         raise ValueError("set_logs must not be empty")
     for set_log in set_logs:

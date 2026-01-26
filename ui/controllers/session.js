@@ -9,16 +9,19 @@ class SessionController {
     this.statusAlert = document.querySelector("[data-session-status]");
     this.exerciseGrid = document.querySelector("[data-session-exercises]");
     this.saveButton = document.querySelector("[data-save-session]");
+    this.skipToggle = document.querySelector("[data-skip-session]");
     this.defaultSaveLabel = this.saveButton?.textContent ?? "Save Session";
     this.planData = null;
     this.activeSession = null;
     this.exercises = [];
     this.recommendations = new Map();
-    this.missingTargets = new Set();
+    this.missingExercises = new Set();
+    this.recommendationFailures = new Set();
     this.draftKey = "ui.sessionDraft";
     this.draftState = null;
     this.isSaving = false;
     this.isReadOnly = false;
+    this.isSkipping = false;
   }
 
   init() {
@@ -36,6 +39,12 @@ class SessionController {
     if (this.saveButton) {
       this.saveButton.addEventListener("click", () => {
         this.handleSave();
+      });
+    }
+
+    if (this.skipToggle) {
+      this.skipToggle.addEventListener("change", () => {
+        this.handleSkipToggle();
       });
     }
 
@@ -88,6 +97,10 @@ class SessionController {
       return;
     }
     this.isReadOnly = Boolean(this.activeSession?.readOnly);
+    if (this.skipToggle) {
+      this.skipToggle.checked = false;
+    }
+    this.isSkipping = false;
     this.draftState = this.loadDraft();
 
     await this.loadPlanData();
@@ -111,12 +124,19 @@ class SessionController {
     await this.loadRecommendations();
     this.renderExercises();
     this.applyReadOnlyState();
-    if (this.missingTargets.size > 0 && !this.isReadOnly) {
-      this.setStatus("Target sync required.", true);
+    if (this.missingExercises.size > 0 && !this.isReadOnly) {
+      this.setStatus("Exercise ID missing. Sync required.", true);
       return;
     }
     if (this.isReadOnly) {
       this.setStatus("Read-only view. Session locked.", false);
+      return;
+    }
+    if (this.recommendationFailures.size > 0) {
+      this.setStatus(
+        "Recommendations unavailable. You can still log this session.",
+        false,
+      );
       return;
     }
     this.setStatus("Session ready for logging.", false);
@@ -168,13 +188,16 @@ class SessionController {
 
   async loadRecommendations() {
     this.recommendations = new Map();
-    this.missingTargets = new Set();
+    this.missingExercises = new Set();
+    this.recommendationFailures = new Set();
     const userId = Number(
       this.store.getState()?.onboardingData?.user_id ?? 1,
     );
     const recommendationTasks = this.exercises.map(async (exercise) => {
       if (!exercise.exercise_id) {
-        this.missingTargets.add(exercise.sequence ?? exercise.name ?? "Exercise");
+        this.missingExercises.add(
+          exercise.sequence ?? exercise.name ?? "Exercise",
+        );
         return;
       }
       try {
@@ -182,24 +205,31 @@ class SessionController {
           `/progression/recommendations?user_id=${userId}&exercise_id=${exercise.exercise_id}`,
         );
         if (!response.ok) {
-          this.missingTargets.add(exercise.name ?? exercise.exercise_id);
+          this.recommendationFailures.add(
+            exercise.name ?? exercise.exercise_id,
+          );
           return;
         }
         const payload = await response.json();
         if (!payload) {
-          this.missingTargets.add(exercise.name ?? exercise.exercise_id);
+          this.recommendationFailures.add(
+            exercise.name ?? exercise.exercise_id,
+          );
           return;
         }
         this.recommendations.set(exercise.exercise_id, payload);
       } catch (error) {
-        this.missingTargets.add(exercise.name ?? exercise.exercise_id);
+        this.recommendationFailures.add(
+          exercise.name ?? exercise.exercise_id,
+        );
         return;
       }
     });
 
     await Promise.all(recommendationTasks);
     if (this.saveButton) {
-      this.saveButton.disabled = this.missingTargets.size > 0 || this.isReadOnly;
+      this.saveButton.disabled =
+        this.missingExercises.size > 0 || this.isReadOnly;
     }
   }
 
@@ -269,7 +299,8 @@ class SessionController {
         field.disabled = shouldDisable;
       });
     if (this.saveButton) {
-      this.saveButton.disabled = shouldDisable || this.missingTargets.size > 0;
+      this.saveButton.disabled =
+        shouldDisable || this.missingExercises.size > 0;
       this.saveButton.textContent = shouldDisable
         ? "Read Only"
         : this.defaultSaveLabel;
@@ -358,7 +389,7 @@ class SessionController {
           <input
             type="number"
             inputmode="numeric"
-            min="0"
+            min="1"
             step="1"
             data-field="rest"
             placeholder="sec"
@@ -373,10 +404,18 @@ class SessionController {
 
     setList.appendChild(row);
 
-    if (exercise?.starting_weight !== null && exercise?.starting_weight !== undefined) {
+    if (
+      exercise?.starting_weight !== null &&
+      exercise?.starting_weight !== undefined
+    ) {
       const weightInput = row.querySelector('[data-field="weight"]');
       if (weightInput) {
         weightInput.value = String(exercise.starting_weight);
+      }
+    } else if (this.isBodyweight(exercise)) {
+      const weightInput = row.querySelector('[data-field="weight"]');
+      if (weightInput && weightInput.value === "") {
+        weightInput.value = "0";
       }
     }
     this.persistDraft();
@@ -400,17 +439,13 @@ class SessionController {
         return;
       }
       const setRows = Array.from(card.querySelectorAll("[data-set-row]"));
-      const hasLoggedSet = setRows.some((row) => {
-        const weightInput = row.querySelector('[data-field="weight"]');
-        const repsInput = row.querySelector('[data-field="reps"]');
-        return (
-          weightInput?.value !== "" ||
-          repsInput?.value !== ""
-        );
-      });
+      const hasLoggedSet = setRows.some((row) => !this.isRowEmpty(row));
       exerciseCompletion.set(exerciseIndex, hasLoggedSet);
 
       setRows.forEach((row, index) => {
+        if (this.isRowEmpty(row)) {
+          return;
+        }
         const weightInput = row.querySelector('[data-field="weight"]');
         const repsInput = row.querySelector('[data-field="reps"]');
         const rpeInput = row.querySelector('[data-field="rpe"]');
@@ -444,6 +479,42 @@ class SessionController {
     });
 
     return { setLogs, manualAuditFlag, exerciseCompletion };
+  }
+
+  isRowEmpty(row) {
+    const weightInput = row.querySelector('[data-field="weight"]');
+    const repsInput = row.querySelector('[data-field="reps"]');
+    const rpeInput = row.querySelector('[data-field="rpe"]');
+    const restInput = row.querySelector('[data-field="rest"]');
+    const auditInput = row.querySelector('[data-field="audit"]');
+    return (
+      (weightInput?.value ?? "") === "" &&
+      (repsInput?.value ?? "") === "" &&
+      (rpeInput?.value ?? "") === "" &&
+      (restInput?.value ?? "") === "" &&
+      !auditInput?.checked
+    );
+  }
+
+  handleSkipToggle() {
+    this.isSkipping = Boolean(this.skipToggle?.checked);
+    if (this.exerciseGrid) {
+      this.exerciseGrid
+        .querySelectorAll("input, textarea, select, button[data-add-set]")
+        .forEach((field) => {
+          field.disabled = this.isSkipping;
+        });
+    }
+    if (this.saveButton) {
+      this.saveButton.disabled =
+        this.isReadOnly ||
+        this.missingExercises.size > 0;
+    }
+    if (this.isSkipping) {
+      this.setStatus("Skipped session selected. No sets will be logged.", false);
+    } else if (!this.isReadOnly) {
+      this.setStatus("Session ready for logging.", false);
+    }
   }
 
   validateSets(setLogs) {
@@ -507,16 +578,37 @@ class SessionController {
       return;
     }
 
-    if (this.missingTargets.size > 0) {
-      this.setStatus("Target sync required.", true);
+    if (this.missingExercises.size > 0) {
+      this.setStatus("Exercise ID missing. Sync required.", true);
       return;
     }
 
-    const { setLogs, manualAuditFlag, exerciseCompletion } =
-      this.collectSetLogs();
+    if (this.isSkipping) {
+      if (!this.skipToggle?.checked) {
+        this.setStatus("Skipped session requires confirmation.", true);
+        return;
+      }
+      await this.saveSessionPayload({
+        user_id: Number(this.store.getState()?.onboardingData?.user_id ?? 1),
+        performed_at: new Date().toISOString(),
+        duration_minutes: null,
+        notes: null,
+        completion_status: "skipped",
+        template_id:
+          this.activeSession?.template_id ?? this.activeSession?.templateId ?? null,
+        set_logs: [],
+        manual_audit_flag: false,
+      });
+      return;
+    }
+
+    const { setLogs, manualAuditFlag, exerciseCompletion } = this.collectSetLogs();
 
     if (!setLogs.length) {
-      this.setStatus("No sets logged.", true);
+      this.setStatus(
+        "No sets logged. Log at least one set or mark as skipped.",
+        true,
+      );
       return;
     }
 
@@ -554,6 +646,10 @@ class SessionController {
       return;
     }
 
+    await this.saveSessionPayload(payload);
+  }
+
+  async saveSessionPayload(payload) {
     try {
       this.isSaving = true;
       if (this.saveButton) {
@@ -573,6 +669,10 @@ class SessionController {
       }
       this.store.setActiveSession(null);
       this.clearDraft();
+      if (this.skipToggle) {
+        this.skipToggle.checked = false;
+      }
+      this.isSkipping = false;
       this.setStatus("Session persisted to SQLite.", false);
       this.viewManager.show("dashboard");
     } catch (error) {
@@ -583,7 +683,8 @@ class SessionController {
     } finally {
       this.isSaving = false;
       if (this.saveButton) {
-        this.saveButton.disabled = this.missingTargets.size > 0 || this.isReadOnly;
+        this.saveButton.disabled =
+          this.missingExercises.size > 0 || this.isReadOnly;
       }
     }
   }

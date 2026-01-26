@@ -310,6 +310,28 @@ class QuestionnaireController {
     this.submitStatus.classList.toggle("panel__alert--error", isError);
   }
 
+  formatSubmitError(message) {
+    if (!message) {
+      return "Submit failed. Check required fields.";
+    }
+    if (message.includes("EQUIPMENT_REQUIRED")) {
+      return "Equipment selection required.";
+    }
+    if (message.includes("training_days_of_week must match schedule_days")) {
+      return "Select the exact number of training days.";
+    }
+    if (message.includes("schedule_days is required")) {
+      return "Training schedule required.";
+    }
+    if (message.includes("split_variant must be")) {
+      return "Select a split variant for 5 days/week.";
+    }
+    if (message.includes("schedule_days must be 7 or fewer")) {
+      return "Schedule days must be 7 or fewer.";
+    }
+    return message;
+  }
+
   setActiveStep(step) {
     this.currentStep = Math.max(1, Math.min(step, this.totalSteps));
     if (this.root) {
@@ -434,8 +456,16 @@ class QuestionnaireController {
         body: JSON.stringify(payload),
       });
       if (!response.ok) {
-        const text = await response.text();
-        throw new Error(text || "Request failed");
+        let errorMessage = "";
+        try {
+          const errorPayload = await response.json();
+          errorMessage =
+            errorPayload?.error ??
+            JSON.stringify(errorPayload ?? "");
+        } catch (error) {
+          errorMessage = await response.text();
+        }
+        throw new Error(errorMessage || "Request failed");
       }
       let responseData = null;
       try {
@@ -458,7 +488,9 @@ class QuestionnaireController {
       this.store.resetOnboarding();
     } catch (error) {
       this.setSubmitStatus(
-        `Submit failed: ${error?.message ?? "Unknown error"}`,
+        `Submit failed: ${this.formatSubmitError(
+          error?.message ?? "Unknown error",
+        )}`,
         true,
       );
     }

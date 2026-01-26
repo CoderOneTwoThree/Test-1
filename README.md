@@ -82,5 +82,4 @@ Key specs and plans:
 - `PLAN_GENERATION_LOGIC.md`
 - `UI_SCREENS.md`
 - `UX_QA_FLOW.md`
-- `MVP_IMPLEMENTATION_PLAN.md`
 - `MINIMAL_DATABASE_MVP_AUDIT.md`

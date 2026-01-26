@@ -3,17 +3,19 @@
 ## Core data model
 - **User**: id, email, created_at, smallest_increment
 - **Exercise**: id, name, primary_muscle, equipment, movement_pattern, category
-- **WorkoutTemplate**: id, name, goal, difficulty, created_by_user_id
-- **WorkoutTemplateExercise**: template_id, exercise_id, order, target_sets, target_reps, target_rpe_or_intensity
-- **WorkoutSession**: id, user_id, template_id (nullable), performed_at, duration_minutes, notes, completion_status (completed/partial/skipped), manual_audit_flag
+- **WorkoutTemplate**: id, name, goal, difficulty, created_by_user_id (reserved; not used in the MVP flow)
+- **WorkoutTemplateExercise**: template_id, exercise_id, order, target_sets, target_reps, target_rpe_or_intensity (reserved; not used in the MVP flow)
+- **WorkoutSession**: id, user_id, template_id (nullable, reserved), performed_at, duration_minutes, notes, completion_status (completed/partial/skipped), manual_audit_flag
 - **SetLog**: session_id, exercise_id, set_number, reps, weight, rpe, rest_seconds, is_initial_load
 - **ProgressionRecommendation**: user_id, exercise_id, basis (e.g., last_best, volume_trend), suggested_weight, suggested_reps, suggested_sets, created_at
 - **ManualFormAlert**: user_id, exercise_id, created_at, status (applied/cleared)
 - **QuestionnaireResponse**: user_id, answered_at, goals, experience_level, schedule_days, training_days_of_week, split_variant, equipment_available, injuries_constraints, excluded_patterns
 - **Plan**: id, user_id, name, start_date, weeks, generated_from_questionnaire_id
-- **PlanWorkout**: plan_id, day_index, template_id
+- **PlanWorkout**: plan_id, day_index, template_id (reserved; MVP relies on PlannedExercise rows)
 - **PlannedExercise**: plan_id, day_index, session_type, sequence, exercise_id, target_sets, target_reps_min, target_reps_max, starting_weight, is_initial_load
 - **PlannedExerciseSwap**: id, plan_id, day_index, sequence, previous_exercise_id, new_exercise_id, swapped_at
+
+**MVP note:** Plan generation writes concrete rows directly into `PlannedExercise`. Template entities are placeholders for a future "save session as template" feature rather than part of the current generation pipeline.
 
 ## Main user flows
 - Log a workout session, record sets, and review history per exercise.

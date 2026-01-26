@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS workout_sessions (
     manual_audit_flag INTEGER NOT NULL DEFAULT 0
 );
 
+
 CREATE TABLE IF NOT EXISTS set_logs (
     session_id INTEGER NOT NULL REFERENCES workout_sessions(id),
     exercise_id INTEGER NOT NULL REFERENCES exercises(id),
@@ -62,6 +63,13 @@ CREATE TABLE IF NOT EXISTS plans (
     start_date DATE NOT NULL,
     weeks INTEGER NOT NULL,
     generated_from_questionnaire_id INTEGER REFERENCES questionnaire_responses(id)
+);
+
+CREATE TABLE IF NOT EXISTS workout_session_plans (
+    session_id INTEGER NOT NULL REFERENCES workout_sessions(id),
+    plan_id INTEGER NOT NULL REFERENCES plans(id),
+    day_index INTEGER NOT NULL,
+    PRIMARY KEY (session_id, plan_id)
 );
 
 CREATE TABLE IF NOT EXISTS plan_workouts (

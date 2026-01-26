@@ -31,6 +31,7 @@ const initApp = () => {
   const startQuestionnaire = document.querySelector(
     "[data-start-questionnaire]",
   );
+  const startNewPlanButtons = document.querySelectorAll("[data-start-new-plan]");
 
   navButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -46,6 +47,31 @@ const initApp = () => {
       viewManager.show("questionnaire", { step: 1 });
     });
   }
+
+  const startNewPlan = () => {
+    const { currentPlan, pendingPlanId, activeSession } = Store.getState();
+    const activePlanId = Store.getActivePlanId?.();
+    const hasPlan =
+      Boolean(activePlanId) ||
+      Boolean(currentPlan?.id) ||
+      Boolean(pendingPlanId);
+    const hasSession = Boolean(activeSession?.id);
+    if (hasPlan || hasSession) {
+      const confirmed = window.confirm(
+        "Start a new plan? This will clear the active plan and any in-progress session.",
+      );
+      if (!confirmed) {
+        return;
+      }
+    }
+    Store.resetPlanState();
+    Store.resetOnboarding();
+    viewManager.show("questionnaire", { step: 1 });
+  };
+
+  startNewPlanButtons.forEach((button) => {
+    button.addEventListener("click", startNewPlan);
+  });
 
   registerController("questionnaire", QuestionnaireController);
   registerController("plan_summary", PlanSummaryController);

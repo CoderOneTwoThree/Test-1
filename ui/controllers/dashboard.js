@@ -1,9 +1,7 @@
 import {
   DAY_LABELS,
   formatDateLabel,
-  getWeekdayIndex,
   normalizePlanData,
-  parseIsoDate,
 } from "../js/plan-utils.js";
 import { ViewManager } from "../js/view-manager.js";
 
@@ -23,6 +21,8 @@ class DashboardController {
     this.planData = null;
     this.currentWorkout = null;
     this.currentDayIndex = null;
+    this.hasSessionToday = false;
+    this.lastCompletedDayIndex = null;
   }
 
   init() {
@@ -31,8 +31,12 @@ class DashboardController {
     }
     this.bindEvents();
     this.loadPlan();
+    this.loadSessionStatus();
     window.addEventListener("plan:accepted", () => {
       this.loadPlan();
+    });
+    window.addEventListener("session:saved", (event) => {
+      this.handleSessionSaved(event);
     });
   }
 
@@ -91,6 +95,7 @@ class DashboardController {
       if (!this.planData) {
         throw new Error("Plan data unavailable");
       }
+      await this.loadLastCompleted(planId);
       this.renderToday(this.planData);
       this.setStatus("Plan synchronized.", false);
     } catch (error) {
@@ -99,6 +104,99 @@ class DashboardController {
         true,
       );
     }
+  }
+
+  async loadLastCompleted(planId) {
+    const userId = Number(this.store?.getState?.()?.onboardingData?.user_id ?? 1);
+    if (!Number.isFinite(userId)) {
+      this.lastCompletedDayIndex = null;
+      return;
+    }
+    try {
+      const response = await fetch(
+        `/plans/${planId}/last-completed?user_id=${userId}`,
+      );
+      if (!response.ok) {
+        this.lastCompletedDayIndex = null;
+        return;
+      }
+      const payload = await response.json();
+      const dayIndex = payload?.day_index ?? payload?.dayIndex ?? null;
+      this.lastCompletedDayIndex =
+        Number.isFinite(Number(dayIndex)) ? Number(dayIndex) : null;
+    } catch (error) {
+      this.lastCompletedDayIndex = null;
+    }
+  }
+
+  async loadSessionStatus() {
+    const userId = Number(this.store?.getState?.()?.onboardingData?.user_id ?? 1);
+    if (!Number.isFinite(userId)) {
+      return;
+    }
+    try {
+      const response = await fetch(`/workouts/sessions?user_id=${userId}`);
+      if (!response.ok) {
+        return;
+      }
+      const payload = await response.json();
+      const sessions = Array.isArray(payload) ? payload : payload?.sessions ?? [];
+      if (!sessions.length) {
+        this.hasSessionToday = false;
+        this.renderSessionStatus();
+        return;
+      }
+      const latest = sessions[0];
+      const performedAt = latest?.performed_at ?? latest?.performedAt ?? null;
+      const performedDate = performedAt ? new Date(performedAt) : null;
+      if (!performedDate || Number.isNaN(performedDate.getTime())) {
+        this.hasSessionToday = false;
+        this.renderSessionStatus();
+        return;
+      }
+      this.hasSessionToday = this.isSameDay(performedDate, new Date());
+      this.renderSessionStatus(
+        this.hasSessionToday ? "Session logged today." : null,
+      );
+    } catch (error) {
+      // Silent fail: session status is a nice-to-have.
+    }
+  }
+
+  async handleSessionSaved(event) {
+    const performedAt =
+      event?.detail?.performed_at ?? event?.detail?.performedAt ?? null;
+    const performedDate = performedAt ? new Date(performedAt) : new Date();
+    this.hasSessionToday = this.isSameDay(performedDate, new Date());
+    const planId =
+      event?.detail?.plan_id ?? event?.detail?.planId ?? this.planData?.id ?? null;
+    if (planId) {
+      await this.loadLastCompleted(planId);
+      if (this.planData) {
+        this.renderToday(this.planData);
+      }
+    }
+    this.renderSessionStatus("Session saved. Ready to log another.");
+  }
+
+  renderSessionStatus(message = null) {
+    if (this.startButton) {
+      this.startButton.disabled = false;
+      this.startButton.textContent = this.hasSessionToday
+        ? "Log Another Session"
+        : "Start Session";
+    }
+    if (this.hasSessionToday && message) {
+      this.setStatus(message, false);
+    }
+  }
+
+  isSameDay(first, second) {
+    return (
+      first.getFullYear() === second.getFullYear() &&
+      first.getMonth() === second.getMonth() &&
+      first.getDate() === second.getDate()
+    );
   }
 
   setStatus(message, isError) {
@@ -111,47 +209,33 @@ class DashboardController {
   }
 
   renderToday(plan) {
-    const today = new Date();
-    const startDate = parseIsoDate(plan.start_date);
-    if (!startDate) {
-      this.renderNoSession("Start date missing. Plan sync required.");
+    const workouts = Array.isArray(plan.workouts) ? plan.workouts : [];
+    if (!workouts.length) {
+      this.renderNoSession("Training plan missing workouts.");
       return;
     }
-    const dayIndex = getWeekdayIndex(today);
-    const trainingDays = [...(plan.training_days_of_week ?? [])].sort(
-      (a, b) => a - b,
-    );
-    const isTrainingDay = trainingDays.includes(dayIndex);
-    const daysSinceStart = Math.floor(
-      (today.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
-    );
-
-    if (daysSinceStart < 0) {
-      this.renderNoSession(
-        `Plan starts ${formatDateLabel(plan.start_date)}.`,
-      );
-      return;
-    }
-
-    if (!isTrainingDay) {
-      this.renderNoSession("Rest day. No session scheduled.");
-      return;
-    }
-
-    const workoutIndex = trainingDays.indexOf(dayIndex);
-    const workout = plan.workouts?.[workoutIndex];
+    const lastCompletedIndex = Number.isFinite(this.lastCompletedDayIndex)
+      ? workouts.findIndex(
+          (workout) => Number(workout.day_index) === this.lastCompletedDayIndex,
+        )
+      : -1;
+    const nextIndex =
+      lastCompletedIndex >= 0
+        ? (lastCompletedIndex + 1) % workouts.length
+        : 0;
+    const workout = workouts[nextIndex];
     if (!workout) {
-      this.renderNoSession("Training day scheduled. Session missing.");
+      this.renderNoSession("Next session missing. Sync required.");
       return;
     }
     this.currentWorkout = workout;
-    this.currentDayIndex = dayIndex;
+    this.currentDayIndex = workout.day_index ?? nextIndex;
 
     if (this.todayPanel) {
       this.todayPanel.innerHTML = `
         <div class="tile tile--compact">
-          <span class="tile__label">Today</span>
-          <span class="tile__value">${DAY_LABELS[dayIndex]}</span>
+          <span class="tile__label">Next Session</span>
+          <span class="tile__value">${DAY_LABELS[workout.day_index] ?? "Day"}</span>
         </div>
         <div class="tile tile--compact">
           <span class="tile__label">Session Type</span>

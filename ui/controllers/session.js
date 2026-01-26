@@ -556,41 +556,29 @@ class SessionController {
         reps === null ||
         !Number.isFinite(reps) ||
         !Number.isInteger(reps) ||
-        reps < 1 ||
+        reps < 0 ||
         reps > 100
       ) {
-        this.setStatus("Invalid Reps: Must be 1-100", true);
+        this.setStatus("Invalid Reps: Must be 0-100", true);
         return false;
       }
-      if (
-        rpe === null ||
-        !Number.isFinite(rpe) ||
-        rpe < 1 ||
-        rpe > 10
-      ) {
-        this.setStatus("RPE Required.", true);
-        return false;
+      if (rpe !== null) {
+        if (!Number.isFinite(rpe) || rpe < 0 || rpe > 10) {
+          this.setStatus("Invalid RPE: Must be 0-10", true);
+          return false;
+        }
       }
-      if (
-        restSeconds === null ||
-        !Number.isFinite(restSeconds) ||
-        restSeconds <= 0
-      ) {
-        this.setStatus("Rest Required.", true);
-        return false;
+      if (restSeconds !== null) {
+        if (!Number.isFinite(restSeconds) || restSeconds < 0) {
+          this.setStatus("Invalid Rest: Must be 0 or greater", true);
+          return false;
+        }
       }
 
       const isBodyweight = this.isBodyweight(exercise);
-      if (isBodyweight) {
-        if (weight === null || !Number.isFinite(weight) || weight < 0) {
-          this.setStatus("Weight Required.", true);
-          return false;
-        }
-      } else {
-        if (weight === null || !Number.isFinite(weight) || weight <= 0) {
-          this.setStatus("Weight Required.", true);
-          return false;
-        }
+      if (weight === null || !Number.isFinite(weight) || weight < 0) {
+        this.setStatus("Weight Required.", true);
+        return false;
       }
     }
     return true;
@@ -628,6 +616,10 @@ class SessionController {
         completion_status: "skipped",
         template_id:
           this.activeSession?.template_id ?? this.activeSession?.templateId ?? null,
+        plan_id:
+          this.activeSession?.plan_id ?? this.activeSession?.planId ?? null,
+        day_index:
+          this.activeSession?.day_index ?? this.activeSession?.dayIndex ?? null,
         set_logs: [],
         manual_audit_flag: false,
       });
@@ -662,6 +654,10 @@ class SessionController {
       template_id:
         this.activeSession?.template_id ?? this.activeSession?.templateId ?? null,
       manual_audit_flag: manualAuditFlag,
+      plan_id:
+        this.activeSession?.plan_id ?? this.activeSession?.planId ?? null,
+      day_index:
+        this.activeSession?.day_index ?? this.activeSession?.dayIndex ?? null,
       set_logs: setLogs.map((entry) => ({
         exercise_id: entry.exercise.exercise_id,
         set_number: entry.set_number,
@@ -706,6 +702,18 @@ class SessionController {
       }
       this.isSkipping = false;
       this.setStatus("Session persisted to SQLite.", false);
+      window.dispatchEvent(
+        new CustomEvent("session:saved", {
+          detail: {
+            performed_at: payload?.performed_at ?? new Date().toISOString(),
+            completion_status: payload?.completion_status ?? "completed",
+            plan_id:
+              this.activeSession?.plan_id ?? this.activeSession?.planId ?? null,
+            day_index:
+              this.activeSession?.day_index ?? this.activeSession?.dayIndex ?? null,
+          },
+        }),
+      );
       this.viewManager.show("dashboard");
     } catch (error) {
       this.setStatus(

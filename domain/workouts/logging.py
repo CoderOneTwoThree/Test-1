@@ -3,7 +3,7 @@ from typing import Iterable
 
 
 COMPLETION_STATUSES = {"completed", "partial", "skipped"}
-REPS_LOG_MIN = 1
+REPS_LOG_MIN = 0
 REPS_MAX = 100
 
 
@@ -13,8 +13,8 @@ class SetLogInput:
     set_number: int
     reps: int
     weight: float | None
-    rpe: float
-    rest_seconds: int
+    rpe: float | None
+    rest_seconds: int | None
     is_initial_load: bool
 
 
@@ -32,24 +32,23 @@ class SessionInput:
 def validate_set_log(set_log: SetLogInput, is_bodyweight: bool) -> None:
     if set_log.set_number <= 0:
         raise ValueError("set_number must be positive")
-    if set_log.reps <= 0:
-        raise ValueError("reps must be positive")
+    if set_log.reps < 0:
+        raise ValueError("reps must be zero or positive")
     if is_bodyweight:
         if set_log.weight is None:
             raise ValueError("weight is required")
         if set_log.weight < 0:
             raise ValueError("weight cannot be negative")
     else:
-        if set_log.weight is None or set_log.weight <= 0:
-            raise ValueError("weight must be positive")
+        if set_log.weight is None or set_log.weight < 0:
+            raise ValueError("weight must be zero or positive")
     if not REPS_LOG_MIN <= set_log.reps <= REPS_MAX:
-        raise ValueError("reps must be between 1 and 100")
-    if set_log.rpe is None:
-        raise ValueError("rpe is required")
-    if set_log.rest_seconds is None:
-        raise ValueError("rest_seconds is required")
-    if set_log.rest_seconds < 0:
-        raise ValueError("rest_seconds cannot be negative")
+        raise ValueError("reps must be between 0 and 100")
+    if set_log.rpe is not None and not (0 <= set_log.rpe <= 10):
+        raise ValueError("rpe must be between 0 and 10")
+    if set_log.rest_seconds is not None:
+        if set_log.rest_seconds < 0:
+            raise ValueError("rest_seconds cannot be negative")
     if not isinstance(set_log.is_initial_load, bool):
         raise ValueError("is_initial_load must be boolean")
 

@@ -24,6 +24,14 @@ def _fetch_exercise_categories(
 
 def create_session(db_path: str, payload: dict[str, Any]) -> int:
     db = get_db_connection(db_path)
+    plan_id = payload.get("plan_id")
+    day_index = payload.get("day_index")
+    try:
+        plan_id = int(plan_id) if plan_id is not None else None
+        day_index = int(day_index) if day_index is not None else None
+    except (TypeError, ValueError):
+        plan_id = None
+        day_index = None
     session = SessionInput(
         user_id=payload["user_id"],
         performed_at=payload["performed_at"],
@@ -73,6 +81,19 @@ def create_session(db_path: str, payload: dict[str, Any]) -> int:
                 ),
             )
             session_id = cursor.lastrowid
+            if plan_id is not None and day_index is not None:
+                db.execute(
+                    """
+                    INSERT INTO workout_session_plans
+                        (session_id, plan_id, day_index)
+                    VALUES (?, ?, ?)
+                    """,
+                    (
+                        session_id,
+                        plan_id,
+                        day_index,
+                    ),
+                )
             db.executemany(
                 """
                 INSERT INTO set_logs

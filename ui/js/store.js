@@ -203,6 +203,13 @@ const updateOnboardingData = (partialData) => {
   persistValue(STORAGE_KEYS.onboardingData, state.onboardingData);
 };
 
+const resetPlanState = () => {
+  setCurrentPlan(null);
+  setPendingPlanId(null);
+  setActivePlanId(null);
+  setActiveSession(null);
+};
+
 const resetOnboarding = () => {
   state.onboardingData = {
     user_id: 1,
@@ -241,6 +248,7 @@ const Store = {
   setStepComplete,
   isStepAccessible,
   updateOnboardingData,
+  resetPlanState,
   resetOnboarding,
   isOnboardingComplete: () => {
     const { onboardingData } = state;

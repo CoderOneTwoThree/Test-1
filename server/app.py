@@ -25,6 +25,7 @@ UI_DIR = BASE_DIR / "ui"
 def create_app(db_path: pathlib.Path) -> Flask:
     app = Flask(__name__)
     app.config["DB_PATH"] = str(db_path)
+    ensure_session_plan_table(db_path)
 
     @app.get("/")
     def index() -> Any:
@@ -69,6 +70,16 @@ def create_app(db_path: pathlib.Path) -> Flask:
         except Exception as exc:
             return _error(str(exc), 404)
         return jsonify(plan)
+
+    @app.get("/plans/<int:plan_id>/last-completed")
+    def plans_last_completed(plan_id: int) -> Any:
+        db_path_local = app.config["DB_PATH"]
+        user_id = request.args.get("user_id", type=int, default=1)
+        try:
+            result = _fetch_last_completed_day_index(db_path_local, plan_id, user_id)
+        except Exception as exc:
+            return _error(str(exc), 400)
+        return jsonify(result)
 
     @app.get("/plans/<int:plan_id>/swap-options")
     def plans_swap_options(plan_id: int) -> Any:
@@ -153,6 +164,24 @@ def create_app(db_path: pathlib.Path) -> Flask:
         return jsonify(payload)
 
     return app
+
+
+def ensure_session_plan_table(db_path: pathlib.Path) -> None:
+    connection = sqlite3.connect(db_path)
+    try:
+        connection.execute(
+            """
+            CREATE TABLE IF NOT EXISTS workout_session_plans (
+                session_id INTEGER NOT NULL REFERENCES workout_sessions(id),
+                plan_id INTEGER NOT NULL REFERENCES plans(id),
+                day_index INTEGER NOT NULL,
+                PRIMARY KEY (session_id, plan_id)
+            )
+            """
+        )
+        connection.commit()
+    finally:
+        connection.close()
 
 
 def _error(message: str, status: int) -> Any:
@@ -249,6 +278,31 @@ def _fetch_plan_payload(db_path: str, plan_id: int) -> dict[str, Any]:
         workouts[key] for key in sorted(workouts.keys())
     ]
     return plan
+
+
+def _fetch_last_completed_day_index(
+    db_path: str, plan_id: int, user_id: int
+) -> dict[str, Any]:
+    connection = sqlite3.connect(db_path)
+    connection.row_factory = sqlite3.Row
+    try:
+        row = connection.execute(
+            """
+            SELECT wsp.day_index, ws.performed_at
+            FROM workout_session_plans wsp
+            JOIN workout_sessions ws ON ws.id = wsp.session_id
+            WHERE wsp.plan_id = ?
+              AND ws.user_id = ?
+            ORDER BY ws.performed_at DESC
+            LIMIT 1
+            """,
+            (plan_id, user_id),
+        ).fetchone()
+        if row is None:
+            return {"day_index": None, "performed_at": None}
+        return {"day_index": row["day_index"], "performed_at": row["performed_at"]}
+    finally:
+        connection.close()
 
 
 def _fetch_sessions_with_sets(db_path: str, user_id: int) -> list[dict[str, Any]]:

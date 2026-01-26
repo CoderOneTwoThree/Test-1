@@ -23,6 +23,9 @@ class HistoryController {
     }
     this.bindEvents();
     this.loadSessions();
+    window.addEventListener("session:saved", () => {
+      this.loadSessions();
+    });
   }
 
   bindEvents() {

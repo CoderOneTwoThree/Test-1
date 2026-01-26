@@ -90,6 +90,7 @@ Manual UI required: This item cannot be confirmed without running the UI.
 ### Priority 1.5: Logic changes (Logic)
 - [ ] **Full workout generation logic audit:** Conduct a full audit by both Codex and the user of how the app actually handles workout generation. 
 - [ ] **Full workout logger audit:** Conduct a full audit by both Codex and the user of how the app actually handles workout logging. 
+  - Codex audit report: `AUDIT_TASK_1_5_CODEX.md` (user validation still required).
 
 ### Priority 2: UI "Hardening" (Phase 6)
 - [ ] **Empty States:** Ensure History screen looks good for a brand new user (no crashes on empty arrays).

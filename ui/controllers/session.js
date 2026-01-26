@@ -442,10 +442,12 @@ class SessionController {
       const hasLoggedSet = setRows.some((row) => !this.isRowEmpty(row));
       exerciseCompletion.set(exerciseIndex, hasLoggedSet);
 
-      setRows.forEach((row, index) => {
+      let loggedSetNumber = 0;
+      setRows.forEach((row) => {
         if (this.isRowEmpty(row)) {
           return;
         }
+        loggedSetNumber += 1;
         const weightInput = row.querySelector('[data-field="weight"]');
         const repsInput = row.querySelector('[data-field="reps"]');
         const rpeInput = row.querySelector('[data-field="rpe"]');
@@ -468,12 +470,12 @@ class SessionController {
 
         setLogs.push({
           exercise,
-          set_number: index + 1,
+          set_number: loggedSetNumber,
           weight,
           reps,
           rpe,
           rest_seconds: rest,
-          is_initial_load: Boolean(exercise.is_initial_load) && index === 0,
+          is_initial_load: Boolean(exercise.is_initial_load) && loggedSetNumber === 1,
         });
       });
     });

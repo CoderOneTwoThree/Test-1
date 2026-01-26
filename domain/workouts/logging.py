@@ -4,7 +4,7 @@ from typing import Iterable
 
 COMPLETION_STATUSES = {"completed", "partial", "skipped"}
 REPS_LOG_MIN = 1
-REPS_MAX = 12
+REPS_MAX = 100
 
 
 @dataclass(frozen=True)
@@ -43,7 +43,7 @@ def validate_set_log(set_log: SetLogInput, is_bodyweight: bool) -> None:
         if set_log.weight is None or set_log.weight <= 0:
             raise ValueError("weight must be positive")
     if not REPS_LOG_MIN <= set_log.reps <= REPS_MAX:
-        raise ValueError("reps must be between 1 and 12")
+        raise ValueError("reps must be between 1 and 100")
     if set_log.rpe is None:
         raise ValueError("rpe is required")
     if set_log.rest_seconds is None:

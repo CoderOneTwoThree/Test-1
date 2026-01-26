@@ -84,7 +84,7 @@ def _summarize_session(session: dict) -> SessionPerformance:
     weight = first_set_weight if first_set_weight is not None else (max(weights) if weights else None)
     all_sets_completed = session.get("completion_status") == "completed" and bool(sets)
     eligible = all_sets_completed and min_reps >= REPS_MIN
-    increase_achieved = eligible and first_set_reps == FIRST_SET_TARGET and last_set_reps >= LAST_SET_TARGET
+    increase_achieved = eligible and first_set_reps >= FIRST_SET_TARGET and last_set_reps >= LAST_SET_TARGET
     missed_minimum = not all_sets_completed or min_reps < REPS_MIN
     manual_audit_flag = bool(session.get("manual_audit_flag", False))
 

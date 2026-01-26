@@ -54,17 +54,12 @@ This document provides a **comprehensive, step-by-step plan** to resolve the Pha
 
 ---
 
-## 3) Remove Automatic Exercise Rotation/Variation
+## 3) Remove Automatic Exercise Rotation/Variation (Resolved)
 
-**Issue:** The spec mentions “moderate variation” and “advanced variations,” but the current implementation always selects the first eligible exercise (sorted by name), which is deterministic and non-rotational.
+**Issue:** The spec mentions “moderate variation” and “advanced variations,” but the prior implementation always selected the first eligible exercise (sorted by name), which was deterministic and non-rotational.
 
-### Plan (Concrete Steps)
-1. **Update documentation** to remove any claim of automatic exercise variation.
-   - Replace with: “Exercise variation is currently manual via swaps.”
-2. **Clarify behavior in code comments** (future work):
-   - Document that selection is deterministic and sorted (no rotation).
-3. **Defer variation logic** to a dedicated roadmap item.
-   - Introduce a future plan for rotation rules, if desired, but **remove** any implied automatic variability from specs.
+### Resolution
+Automatic rotation is now implemented with deterministic cycling through available exercises for repeated patterns, so this removal plan is obsolete.
 
 ---
 

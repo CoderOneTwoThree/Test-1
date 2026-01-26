@@ -70,7 +70,7 @@ class SessionController {
         if (!exercise || !setList) {
           return;
         }
-        this.addSetRow(setList, exercise);
+        this.addSetRow(setList, exercise, this.getSetDefaults(exercise));
       });
     }
 
@@ -240,6 +240,7 @@ class SessionController {
     this.exerciseGrid.innerHTML = "";
 
     this.exercises.forEach((exercise, index) => {
+      const setDefaults = this.getSetDefaults(exercise);
       const card = document.createElement("div");
       card.className = "panel exercise-card";
       card.dataset.exerciseCard = "true";
@@ -276,11 +277,14 @@ class SessionController {
         if (draftSets.length) {
           setList.innerHTML = "";
           draftSets.forEach((draftSet) => {
-            const row = this.addSetRow(setList, exercise);
+            const row = this.addSetRow(setList, exercise, setDefaults);
             this.applyDraftToRow(row, draftSet);
           });
         } else {
-          this.addSetRow(setList, exercise);
+          const targetSets = this.getTargetSetCount(exercise);
+          for (let setIndex = 0; setIndex < targetSets; setIndex += 1) {
+            this.addSetRow(setList, exercise, setDefaults);
+          }
         }
       }
 
@@ -335,7 +339,7 @@ class SessionController {
     return `Target: ${weightLabel} x ${repsLabel}`;
   }
 
-  addSetRow(setList, exercise) {
+  addSetRow(setList, exercise, defaults = {}) {
     const setNumber = setList.querySelectorAll("[data-set-row]").length + 1;
     const row = document.createElement("div");
     row.className = "panel session-set";
@@ -372,6 +376,10 @@ class SessionController {
             placeholder="reps"
           />
         </label>
+        <label class="checkbox">
+          <input type="checkbox" data-set-complete />
+          Complete
+        </label>
         <label class="field">
           RPE (1-10)
           <input
@@ -404,19 +412,15 @@ class SessionController {
 
     setList.appendChild(row);
 
-    if (
-      exercise?.starting_weight !== null &&
-      exercise?.starting_weight !== undefined
-    ) {
-      const weightInput = row.querySelector('[data-field="weight"]');
-      if (weightInput) {
-        weightInput.value = String(exercise.starting_weight);
-      }
-    } else if (this.isBodyweight(exercise)) {
-      const weightInput = row.querySelector('[data-field="weight"]');
-      if (weightInput && weightInput.value === "") {
-        weightInput.value = "0";
-      }
+    const weightInput = row.querySelector('[data-field="weight"]');
+    const repsInput = row.querySelector('[data-field="reps"]');
+    if (weightInput && defaults.weight !== null && defaults.weight !== undefined) {
+      weightInput.value = String(defaults.weight);
+    } else if (this.isBodyweight(exercise) && weightInput && weightInput.value === "") {
+      weightInput.value = "0";
+    }
+    if (repsInput && defaults.reps !== null && defaults.reps !== undefined) {
+      repsInput.value = String(defaults.reps);
     }
     this.persistDraft();
     return row;
@@ -424,6 +428,30 @@ class SessionController {
 
   isBodyweight(exercise) {
     return String(exercise?.category ?? "").toLowerCase() === "bodyweight";
+  }
+
+  getTargetSetCount(exercise) {
+    const targetSets = Number(exercise?.target_sets ?? 3);
+    if (!Number.isFinite(targetSets) || targetSets <= 0) {
+      return 3;
+    }
+    return Math.floor(targetSets);
+  }
+
+  getSetDefaults(exercise) {
+    const recommendation = this.recommendations.get(exercise.exercise_id);
+    const repRange =
+      recommendation?.rep_range ?? recommendation?.repRange ?? null;
+    const reps =
+      Array.isArray(repRange) && repRange.length > 1
+        ? repRange[1]
+        : exercise?.target_reps_max ?? null;
+    const weight =
+      recommendation?.next_weight ??
+      recommendation?.nextWeight ??
+      exercise?.starting_weight ??
+      null;
+    return { weight, reps };
   }
 
   collectSetLogs() {
@@ -489,12 +517,14 @@ class SessionController {
     const rpeInput = row.querySelector('[data-field="rpe"]');
     const restInput = row.querySelector('[data-field="rest"]');
     const auditInput = row.querySelector('[data-field="audit"]');
+    const completeInput = row.querySelector("[data-set-complete]");
     return (
       (weightInput?.value ?? "") === "" &&
       (repsInput?.value ?? "") === "" &&
       (rpeInput?.value ?? "") === "" &&
       (restInput?.value ?? "") === "" &&
-      !auditInput?.checked
+      !auditInput?.checked &&
+      !completeInput?.checked
     );
   }
 
@@ -732,6 +762,7 @@ class SessionController {
     const rpeInput = row.querySelector('[data-field="rpe"]');
     const restInput = row.querySelector('[data-field="rest"]');
     const auditInput = row.querySelector('[data-field="audit"]');
+    const completeInput = row.querySelector("[data-set-complete]");
 
     if (weightInput && draftSet.weight !== null && draftSet.weight !== undefined) {
       weightInput.value = String(draftSet.weight);
@@ -747,6 +778,9 @@ class SessionController {
     }
     if (auditInput) {
       auditInput.checked = Boolean(draftSet.manual_audit_flag);
+    }
+    if (completeInput) {
+      completeInput.checked = Boolean(draftSet.set_complete);
     }
   }
 
@@ -772,6 +806,7 @@ class SessionController {
           const rpeInput = row.querySelector('[data-field="rpe"]');
           const restInput = row.querySelector('[data-field="rest"]');
           const auditInput = row.querySelector('[data-field="audit"]');
+          const completeInput = row.querySelector("[data-set-complete]");
           const weightRaw = weightInput?.value ?? "";
           const repsRaw = repsInput?.value ?? "";
           const rpeRaw = rpeInput?.value ?? "";
@@ -782,6 +817,7 @@ class SessionController {
             rpe: rpeRaw === "" ? null : Number(rpeRaw),
             rest_seconds: restRaw === "" ? null : Number(restRaw),
             manual_audit_flag: Boolean(auditInput?.checked),
+            set_complete: Boolean(completeInput?.checked),
           };
         },
       );

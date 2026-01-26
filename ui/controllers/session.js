@@ -361,12 +361,12 @@ class SessionController {
           />
         </label>
         <label class="field">
-          Reps (1-12)
+          Reps (1-100)
           <input
             type="number"
             inputmode="numeric"
             min="1"
-            max="12"
+            max="100"
             step="1"
             data-field="reps"
             placeholder="reps"
@@ -527,9 +527,9 @@ class SessionController {
         !Number.isFinite(reps) ||
         !Number.isInteger(reps) ||
         reps < 1 ||
-        reps > 12
+        reps > 100
       ) {
-        this.setStatus("Invalid Reps: Must be 1-12", true);
+        this.setStatus("Invalid Reps: Must be 1-100", true);
         return false;
       }
       if (

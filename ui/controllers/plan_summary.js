@@ -15,6 +15,10 @@ class PlanSummaryController {
     this.exerciseGrid = document.querySelector("[data-plan-exercises]");
     this.statusAlert = document.querySelector("[data-plan-summary-status]");
     this.acceptButton = document.querySelector("[data-accept-plan]");
+    this.swapModal = document.querySelector("[data-plan-swap-modal]");
+    this.swapList = document.querySelector("[data-plan-swap-options]");
+    this.swapStatus = document.querySelector("[data-plan-swap-status]");
+    this.swapClose = document.querySelector("[data-plan-swap-close]");
     this.planData = null;
   }
 
@@ -49,6 +53,37 @@ class PlanSummaryController {
           new CustomEvent("plan:accepted", { detail: this.planData }),
         );
         this.viewManager.show("dashboard");
+      });
+    }
+
+    if (this.swapClose) {
+      this.swapClose.addEventListener("click", () => {
+        this.closeSwapModal();
+      });
+    }
+
+    if (this.exerciseGrid) {
+      this.exerciseGrid.addEventListener("click", (event) => {
+        const swapButton = event.target.closest("[data-plan-swap]");
+        if (!swapButton) {
+          return;
+        }
+        const dayIndex = Number(swapButton.dataset.dayIndex);
+        const sequence = Number(swapButton.dataset.sequence);
+        this.openSwapModal(dayIndex, sequence);
+      });
+    }
+
+    if (this.swapList) {
+      this.swapList.addEventListener("click", (event) => {
+        const optionButton = event.target.closest("[data-plan-swap-option]");
+        if (!optionButton) {
+          return;
+        }
+        const exerciseId = Number(optionButton.dataset.exerciseId);
+        const dayIndex = Number(optionButton.dataset.dayIndex);
+        const sequence = Number(optionButton.dataset.sequence);
+        this.applySwap(dayIndex, sequence, exerciseId);
       });
     }
   }
@@ -183,7 +218,20 @@ class PlanSummaryController {
               .map(
                 (exercise) => `
                   <li>
-                    ${exercise.sequence}. ${exercise.name}
+                    <div class="session-row">
+                      <div class="session-row__details">
+                        <span class="session-row__name">${exercise.sequence}. ${exercise.name}</span>
+                      </div>
+                      <button
+                        class="action"
+                        type="button"
+                        data-plan-swap
+                        data-day-index="${workout.day_index}"
+                        data-sequence="${exercise.sequence}"
+                      >
+                        Swap
+                      </button>
+                    </div>
                   </li>
                 `,
               )
@@ -199,6 +247,133 @@ class PlanSummaryController {
         `;
       })
       .join("");
+  }
+
+  async openSwapModal(dayIndex, sequence) {
+    if (!this.swapModal || !this.swapList || !this.swapStatus) {
+      return;
+    }
+    if (!this.planData?.id) {
+      this.swapStatus.textContent = "Swap blocked: plan missing.";
+      this.swapStatus.classList.remove("panel__alert--hidden");
+      this.swapStatus.classList.add("panel__alert--error");
+      this.swapModal.classList.remove("modal--hidden");
+      return;
+    }
+
+    this.swapModal.dataset.sequence = String(sequence);
+    this.swapModal.dataset.dayIndex = String(dayIndex);
+    this.swapStatus.textContent = "Swap options loading...";
+    this.swapStatus.classList.remove("panel__alert--hidden");
+    this.swapStatus.classList.remove("panel__alert--error");
+    this.swapList.innerHTML = "";
+    this.swapModal.classList.remove("modal--hidden");
+
+    try {
+      const response = await fetch(
+        `/plans/${this.planData.id}/swap-options?day_index=${dayIndex}&sequence=${sequence}`,
+      );
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "Swap options failed");
+      }
+      const options = await response.json();
+      this.renderSwapOptions(options);
+      this.swapStatus.textContent = "Swap options synchronized.";
+    } catch (error) {
+      this.swapStatus.textContent = `Swap options failed: ${
+        error?.message ?? "Unknown error"
+      }`;
+      this.swapStatus.classList.add("panel__alert--error");
+    }
+  }
+
+  renderSwapOptions(options) {
+    if (!this.swapList) {
+      return;
+    }
+    if (!Array.isArray(options) || options.length === 0) {
+      this.swapList.innerHTML =
+        '<div class="tile tile--compact">No swap options available.</div>';
+      return;
+    }
+    const dayIndex = Number(this.swapModal?.dataset.dayIndex ?? 0);
+    const sequence = this.swapModal?.dataset.sequence ?? null;
+    this.swapList.innerHTML = options
+      .map(
+        (option) => `
+          <button
+            class="tile tile--compact"
+            type="button"
+            data-plan-swap-option
+            data-exercise-id="${option.id}"
+            data-day-index="${dayIndex}"
+            data-sequence="${sequence ?? ""}"
+          >
+            <span class="tile__label">${option.name}</span>
+            <span class="tile__value">${option.movement_pattern} | ${
+              option.primary_muscle
+            }</span>
+          </button>
+        `,
+      )
+      .join("");
+  }
+
+  closeSwapModal() {
+    if (!this.swapModal) {
+      return;
+    }
+    this.swapModal.classList.add("modal--hidden");
+  }
+
+  async applySwap(dayIndex, sequence, exerciseId) {
+    if (!this.planData?.id) {
+      this.swapStatus.textContent = "Swap blocked: plan missing.";
+      this.swapStatus.classList.remove("panel__alert--hidden");
+      this.swapStatus.classList.add("panel__alert--error");
+      return;
+    }
+    if (!dayIndex && dayIndex !== 0) {
+      this.swapStatus.textContent = "Swap blocked: day index missing.";
+      this.swapStatus.classList.remove("panel__alert--hidden");
+      this.swapStatus.classList.add("panel__alert--error");
+      return;
+    }
+    if (!sequence) {
+      this.swapStatus.textContent = "Swap blocked: sequence missing.";
+      this.swapStatus.classList.remove("panel__alert--hidden");
+      this.swapStatus.classList.add("panel__alert--error");
+      return;
+    }
+    this.swapStatus.textContent = "Applying swap...";
+    this.swapStatus.classList.remove("panel__alert--hidden");
+    this.swapStatus.classList.remove("panel__alert--error");
+
+    try {
+      const response = await fetch(`/plans/${this.planData.id}/swap`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          plan_id: this.planData.id,
+          day_index: dayIndex,
+          sequence,
+          exercise_id: exerciseId,
+        }),
+      });
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "Swap failed");
+      }
+      this.swapStatus.textContent = "Swap applied.";
+      await this.loadPlan();
+      this.closeSwapModal();
+    } catch (error) {
+      this.swapStatus.textContent = `Swap failed: ${error?.message ?? "Unknown error"}`;
+      this.swapStatus.classList.add("panel__alert--error");
+    }
   }
 }
 

@@ -7,6 +7,15 @@ class SessionController {
     this.viewManager = viewManager ?? new ViewManager();
     this.root = document.querySelector('[data-screen-id="session_detail"]');
     this.statusAlert = document.querySelector("[data-session-status]");
+    this.startingWeightPanel = document.querySelector(
+      "[data-starting-weight-panel]",
+    );
+    this.startingWeightList = document.querySelector(
+      "[data-starting-weight-list]",
+    );
+    this.startingWeightGuidance = document.querySelector(
+      "[data-starting-weight-guidance]",
+    );
     this.exerciseGrid = document.querySelector("[data-session-exercises]");
     this.saveButton = document.querySelector("[data-save-session]");
     this.skipToggle = document.querySelector("[data-skip-session]");
@@ -88,6 +97,32 @@ class SessionController {
         this.persistDraft();
       });
     }
+
+    if (this.startingWeightPanel) {
+      this.startingWeightPanel.addEventListener("input", (event) => {
+        if (this.isReadOnly) {
+          return;
+        }
+        const input = event.target.closest("[data-starting-weight-input]");
+        if (!input) {
+          return;
+        }
+        const exerciseId = Number(input.dataset.exerciseId ?? 0);
+        if (!Number.isFinite(exerciseId) || exerciseId <= 0) {
+          return;
+        }
+        const rawValue = input.value ?? "";
+        if (rawValue === "") {
+          this.applyStartingWeight(exerciseId, null);
+          return;
+        }
+        const parsed = Number(rawValue);
+        if (!Number.isFinite(parsed) || parsed < 0) {
+          return;
+        }
+        this.applyStartingWeight(exerciseId, parsed);
+      });
+    }
   }
 
   async loadSession() {
@@ -123,6 +158,7 @@ class SessionController {
 
     await this.loadRecommendations();
     this.renderExercises();
+    this.renderStartingWeightPrompt();
     this.applyReadOnlyState();
     if (this.missingExercises.size > 0 && !this.isReadOnly) {
       this.setStatus("Exercise ID missing. Sync required.", true);
@@ -289,6 +325,144 @@ class SessionController {
       }
 
       this.exerciseGrid.appendChild(card);
+    });
+  }
+
+  renderStartingWeightPrompt() {
+    if (!this.startingWeightPanel || !this.startingWeightList) {
+      return;
+    }
+    const exercisesNeedingWeight = this.exercises.filter((exercise) =>
+      this.needsStartingWeightPrompt(exercise),
+    );
+    if (!exercisesNeedingWeight.length || this.isReadOnly) {
+      this.startingWeightPanel.classList.add("screen--hidden");
+      return;
+    }
+
+    this.startingWeightPanel.classList.remove("screen--hidden");
+    this.startingWeightList.innerHTML = exercisesNeedingWeight
+      .map(
+        (exercise) => `
+          <div class="panel">
+            <div class="session-row">
+              <div class="session-row__details">
+                <span class="session-row__name">${exercise.name}</span>
+                <span class="session-row__meta">Enter a starting weight for this lift.</span>
+              </div>
+            </div>
+            <label class="field">
+              Starting weight (lb)
+              <input
+                type="number"
+                inputmode="decimal"
+                min="0"
+                step="0.5"
+                data-starting-weight-input
+                data-exercise-id="${exercise.exercise_id ?? ""}"
+                placeholder="lb"
+              />
+            </label>
+          </div>
+        `,
+      )
+      .join("");
+
+    this.updateStartingWeightGuidance();
+  }
+
+  updateStartingWeightGuidance() {
+    if (!this.startingWeightGuidance) {
+      return;
+    }
+    const experience = String(this.planData?.experience_level ?? "").toLowerCase();
+    if (experience === "beginner") {
+      this.startingWeightGuidance.textContent =
+        "Beginner tip: choose a weight you can lift for about 6 reps with 2–3 reps in reserve, then log your best effort for the first set.";
+      this.startingWeightGuidance.classList.remove("panel__alert--hidden");
+      return;
+    }
+    this.startingWeightGuidance.textContent = "";
+    this.startingWeightGuidance.classList.add("panel__alert--hidden");
+  }
+
+  needsStartingWeightPrompt(exercise) {
+    if (!exercise) {
+      return false;
+    }
+    const hasStartingWeight =
+      exercise.starting_weight !== null && exercise.starting_weight !== undefined;
+    if (hasStartingWeight) {
+      return false;
+    }
+    const recommendation = this.recommendations.get(exercise.exercise_id);
+    const recommendedWeight =
+      recommendation?.next_weight ?? recommendation?.nextWeight ?? null;
+    if (exercise.is_initial_load) {
+      return true;
+    }
+    return recommendedWeight === null || recommendedWeight === undefined;
+  }
+
+  applyStartingWeight(exerciseId, weight) {
+    const exercise = this.exercises.find(
+      (entry) => Number(entry.exercise_id) === Number(exerciseId),
+    );
+    if (!exercise) {
+      return;
+    }
+    exercise.starting_weight = weight;
+    this.persistStartingWeight(exerciseId, weight);
+    this.updateExerciseCard(exercise);
+    this.renderStartingWeightPrompt();
+  }
+
+  persistStartingWeight(exerciseId, weight) {
+    const { currentPlan } = this.store.getState();
+    if (!currentPlan) {
+      return;
+    }
+    if (!Array.isArray(currentPlan.workouts)) {
+      return;
+    }
+    const updatedPlan = {
+      ...currentPlan,
+      workouts: currentPlan.workouts.map((workout) => ({
+        ...workout,
+        exercises: Array.isArray(workout.exercises)
+          ? workout.exercises.map((entry) => {
+              if (Number(entry.exercise_id) !== Number(exerciseId)) {
+                return entry;
+              }
+              return { ...entry, starting_weight: weight };
+            })
+          : workout.exercises,
+      })),
+    };
+    this.store.setCurrentPlan(updatedPlan);
+  }
+
+  updateExerciseCard(exercise) {
+    if (!this.exerciseGrid || !exercise) {
+      return;
+    }
+    const card = this.exerciseGrid.querySelector(
+      `[data-exercise-id="${exercise.exercise_id}"]`,
+    );
+    if (!card) {
+      return;
+    }
+    const target = card.querySelector("[data-target]");
+    if (target) {
+      target.textContent = this.formatTarget(exercise);
+    }
+    if (exercise.starting_weight === null || exercise.starting_weight === undefined) {
+      return;
+    }
+    card.querySelectorAll('[data-field="weight"]').forEach((input) => {
+      if ((input?.value ?? "") === "") {
+        input.value = String(exercise.starting_weight);
+      }
     });
   }
 

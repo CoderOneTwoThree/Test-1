@@ -95,6 +95,10 @@ class DashboardController {
       if (!this.planData) {
         throw new Error("Plan data unavailable");
       }
+      this.store.setCurrentPlan(this.planData);
+      if (this.planData.id) {
+        this.store.setActivePlanId(this.planData.id);
+      }
       await this.loadLastCompleted(planId);
       this.renderToday(this.planData);
       this.setStatus("Plan synchronized.", false);

@@ -569,6 +569,21 @@
             <h3 class="panel__title">Daily Exercise List</h3>
             <div class="grid-stack" data-plan-exercises></div>
           </div>
+          <div class="modal modal--hidden" data-plan-swap-modal>
+            <div class="panel modal__panel">
+              <h3 class="panel__title">Swap Exercise</h3>
+              <div
+                class="panel__alert panel__alert--hidden"
+                data-plan-swap-status
+              ></div>
+              <div class="tile-grid" data-plan-swap-options></div>
+              <div class="questionnaire__actions">
+                <button class="action" type="button" data-plan-swap-close>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
           <div class="questionnaire__actions">
             <button class="action action--primary" type="button" data-accept-plan>
               Accept Plan
@@ -632,6 +647,11 @@
             Log each set with exact performance metrics. Targets are static
             reference values.
           </p>
+          <div class="panel screen--hidden" data-starting-weight-panel>
+            <h3 class="panel__title">Set Starting Weights</h3>
+            <p class="panel__note panel__alert--hidden" data-starting-weight-guidance></p>
+            <div class="grid-stack" data-starting-weight-list></div>
+          </div>
           <div
             class="panel__alert panel__alert--hidden"
             data-session-status

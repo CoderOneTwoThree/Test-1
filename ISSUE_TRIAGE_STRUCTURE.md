@@ -97,3 +97,73 @@ For each issue:
 - **Expected:** Users can reject/swap exercises at plan level before starting workouts.
 - **Proposed solution:** Add plan-level swap/reject UI with regeneration logic for a single exercise slot.
 - **Acceptance criteria:** Users can swap a plan exercise; the plan reflects the new choice before entering workout flow.
+
+---
+
+# Issue Records
+
+## Issue 1 Record
+Issue ID: 1
+Title: Starting weight undefined (random)
+Summary: Starting weights were missing for new lifts, leading to unclear or random targets in the session logger.
+Scope: UI + state
+Screens/flows affected: Session Detail / Execution
+Specs referenced: TARGETS.md, UI_SCREENS.md
+Expected vs actual: Expected a prompt for starting weight on first workout (with beginner guidance); actual UI skipped the prompt and showed "Target unavailable."
+Root cause hypothesis: Session Detail relied on plan/recommendation data without prompting when weights were null.
+Proposed solution: Add a session prompt to capture starting weights, show beginner guidance, and persist user input into the stored plan.
+Acceptance criteria: Users are prompted for starting weights when missing; beginner guidance appears for beginner plans; targets update to reflect input.
+Tests/verification: PYTHONPATH=. pytest
+Docs to update: UI_SCREENS.md (Session Detail)
+
+Ralph Wiggum loop state:
+- Plan: Define prompt behavior and persistence for missing starting weights.
+- Chunks: Add UI panel; add controller logic; update docs.
+- Implement: Completed.
+- Run checks: Completed (pytest with PYTHONPATH).
+- Evaluate: Prompt appears for missing weights and guidance shown for beginners.
+- Fix: None needed.
+
+## Issue 2 Record
+Issue ID: 2
+Title: Swap exercise doesn’t update logger
+Summary: Swapping an exercise on the dashboard did not update the session logger, which still showed the original exercise.
+Scope: UI + state
+Screens/flows affected: Dashboard / Today, Session Detail / Execution
+Specs referenced: SYSTEM_SUMMARY.md, UI_SCREENS.md
+Expected vs actual: Expected swap to update session logger; actual logger used stale plan data.
+Root cause hypothesis: Dashboard swap refreshed local render but did not persist the updated plan into store state used by Session Detail.
+Proposed solution: Persist the refreshed plan into store state after swap so Session Detail reads the swapped exercise list.
+Acceptance criteria: After swap, starting a session uses the swapped exercise in Session Detail and logging payloads.
+Tests/verification: PYTHONPATH=. pytest
+Docs to update: None (behavior already implied by swap workflow).
+
+Ralph Wiggum loop state:
+- Plan: Persist swapped plan state in Store after swap refresh.
+- Chunks: Update dashboard plan load; verify session logger uses updated plan.
+- Implement: Completed.
+- Run checks: Completed (PYTHONPATH=. pytest).
+- Evaluate: Swap now refreshes Store so Session Detail reflects updated exercises.
+- Fix: None needed.
+
+## Issue 3 Record
+Issue ID: 3
+Title: Swap exercise needed at plan-level
+Summary: Plan Summary lacked a way to swap exercises before plan activation.
+Scope: UI + state
+Screens/flows affected: Plan Summary
+Specs referenced: UI_SCREENS.md, SYSTEM_SUMMARY.md
+Expected vs actual: Expected plan-level swap to be available before accepting the plan; actual flow only allowed swaps from the dashboard.
+Root cause hypothesis: Plan Summary UI did not expose swap controls or swap option modal.
+Proposed solution: Add swap buttons and a swap modal in Plan Summary, backed by existing swap endpoints.
+Acceptance criteria: Users can swap an exercise in Plan Summary and see the updated plan before acceptance.
+Tests/verification: PYTHONPATH=. pytest
+Docs to update: None (swap functionality already implied in plan summary actions).
+
+Ralph Wiggum loop state:
+- Plan: Add plan-level swap controls and modal to Plan Summary.
+- Chunks: Add modal markup; wire swap handlers; refresh plan after swap.
+- Implement: Completed.
+- Run checks: Completed (PYTHONPATH=. pytest).
+- Evaluate: Plan Summary swaps refresh the displayed exercise list.
+- Fix: None needed.
